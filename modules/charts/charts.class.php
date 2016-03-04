@@ -176,10 +176,12 @@ function usual(&$out) {
 
   $pvalue=SQLSelectOne("SELECT * FROM pvalues WHERE PROPERTY_ID='".$prop_id."' AND OBJECT_ID='".$obj->id."'");
 
+
   $history=array();
 
   $result['RESULT']='OK';
   if ($pvalue['ID']) {
+
 
    $history_depth=$chart['HISTORY_DEPTH'];
    $history_type=$chart['HISTORY_TYPE'];
@@ -189,11 +191,16 @@ function usual(&$out) {
    $start_time=time()-$real_depth;
    $end_time=time();
 
-   $data=SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX FROM phistory WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED>=('".date('Y-m-d H:i:s', $start_time)."') AND ADDED<=('".date('Y-m-d H:i:s', $end_time)."') ORDER BY ADDED");
+   $data=SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM phistory WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED>=('".date('Y-m-d H:i:s', $start_time)."') AND ADDED<=('".date('Y-m-d H:i:s', $end_time)."') ORDER BY ADDED");
    $total=count($data);
 
+   $tm1=strtotime(date('Y-m-d H:i:s'));
+   $tm2=strtotime(gmdate('Y-m-d H:i:s'));
+   $diff=$tm1-$tm2;
+   
    for($i=0;$i<$total;$i++) {
-    $dt=$data[$i]['UNX']*1000;
+    //$dt=($data[$i]['UNX']+3*60*60)*1000;
+    $dt=((int)$data[$i]['UNX']+$diff)*1000;
     $val=(float)preg_replace('/[^\d\.]/', '', $data[$i]['VALUE']);
     $history[]=array($dt, $val);
    }
