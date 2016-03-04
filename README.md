@@ -1,0 +1,2 @@
+# majordomo-charts
+Charts module
