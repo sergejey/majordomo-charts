@@ -1,0 +1,115 @@
+<div id="container_<#ID#>" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
+<script src="<#ROOTHTML#>js/highcharts/highcharts.js"></script>
+[#if "<#SETTINGS_THEME#>"=="dark"#]
+<script src="<#ROOTHTML#>js/highcharts/themes/dark-unica.js"></script>
+[#endif SETTINGS_THEME#]
+<script language="javascript">
+
+var chartUpdateTimer<#ID#>;
+
+function requestData[#ID#]() {
+ //alert('load data!');
+ [#begin PROPERTIES#]
+    $.ajax({
+        url: '<#ROOTHTML#>ajax/charts.html?id=<#ID#>&prop_id=[#ID#]',
+        success: function(data) {
+         var obj=jQuery.parseJSON(data);
+         if (obj.RESULT=='OK') {
+          var history_count=obj.HISTORY.length;
+          if (history_count>0) {
+           chart<#ID#>.series[[#NUM#]].setData(obj.HISTORY);
+          }
+         }
+        },
+        cache: false
+    });
+ [#end PROPERTIES#]
+ chartUpdateTimer<#ID#>=setTimeout('requestData[#ID#]();', <#INTERVAL#>*1000);
+ return false;
+}
+ 
+
+
+$(function () { 
+    chart<#ID#> = new Highcharts.Chart({
+        chart: {
+            renderTo: 'container_<#ID#>',
+            type: 'spline',
+            events: {
+                load: requestData[#ID#]
+            }
+        },
+        title: {
+            text: '<#TITLE#>'
+        },
+        [#if SUBTITLE!=""#]
+        subtitle: {
+            text: '<#SUBTITLE#>'
+        },
+        [#endif#]
+        xAxis: {
+            type: 'datetime',
+            dateTimeLabelFormats: { // don't display the dummy year
+                month: '%e. %b',
+                year: '%b'
+            },
+            title: {
+                text: 'Date'
+            }
+        },
+                
+                [#if MULTIPLE_AXIS="1"#]
+                yAxis: [
+                [#begin PROPERTIES#]
+                { 
+            labels: {
+                format: '{value} [#UNIT#]',
+                style: {
+                    color: Highcharts.getOptions().colors[[#NUM#]]
+                }
+            },
+            title: {
+                text: '[#TITLE#]',
+                style: {
+                    color: Highcharts.getOptions().colors[[#NUM#]]
+                }
+            }
+            [#if OPPOSITE="1"#], opposite: true[#endif#]
+        }[#if LAST!="1"#], [#endif#]
+                [#end PROPERTIES#]
+                ],              
+                [#endif MULTIPLE_AXIS#]
+                
+
+        plotOptions: {
+            spline: {
+                marker: {
+                    enabled: true
+                }
+            }
+        },
+        tooltip: {
+            shared: true
+        },
+        series: [
+        [#begin PROPERTIES#]
+        {
+            name: '[#TITLE#]',
+            type: '[#TYPE#]',
+                        tooltip: {
+                valueSuffix: ' [#UNIT#]'
+            },
+                        [#if MULTIPLE_AXIS="1"#]
+                        yAxis: [#NUM#],
+                        [#endif MULTIPLE_AXIS#]
+            // Define the data points. All series have a dummy year
+            // of 1970/71 in order to be compared on the same x axis. Note
+            // that in JavaScript, months start at 0 for January, 1 for February etc.
+            data: []
+        }[#if LAST!="1"#], [#endif#]
+        [#end PROPERTIES#]
+        ]
+    });
+});
+
+</script>

@@ -1,0 +1,63 @@
+
+ <!-- action usual -->
+ [#if DATA_SOURCE="charts" || DATA_SOURCE=""#]
+ <!-- table charts search -->
+ [#if VIEW_MODE="search_charts" || VIEW_MODE=""#]
+  [#inc charts_search_admin.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table charts search -->
+ <!-- table charts edit -->
+ [#if VIEW_MODE="edit_charts"#]
+   [#if ID!=""#]
+   [#if TITLE!=""#]<h4>[#TITLE#]</h4>[#endif TITLE#]
+<ul class="nav nav-tabs">
+  <li[#if TAB=""#] class="active"[#endif#]>
+   <a href="?data_source=<#DATA_SOURCE#>&view_mode=<#VIEW_MODE#>&id=<#ID#>&tab="><#LANG_GENERAL#></a>
+  </li>
+  <li[#if TAB="data"#] class="active"[#endif#]>
+   <a href="?data_source=<#DATA_SOURCE#>&view_mode=<#VIEW_MODE#>&id=<#ID#>&tab=data">&#060#LANG_DATA#&#062</a>
+  </li>
+</ul>
+&nbsp;<br/>
+   [#endif ID#]
+   [#if TAB=""#]
+    [#inc charts_edit_default.html#]
+   [#endif TAB#]
+   [#if TAB="data"#]
+    [#inc charts_edit_data.html#]
+   [#endif TAB#]
+
+[#if ID!=""#]
+<hr size="1">
+Usage: <b>&#091#module name="charts" id="<#ID#>"#&#093</b> or <b>&#091#module name="charts" id="<#ID#>" width="100%" height="400" interval="3600"#&#093</b>
+[#module name="charts" action="" id="<#ID#>"#]
+[#endif#]
+
+ [#endif VIEW_MODE#]
+ <!-- / table charts edit -->
+ <!-- table charts view --> 
+ [#if VIEW_MODE="view_charts"#]
+   [#if TAB=""#]
+    [#inc charts_view_default.html#]
+   [#endif TAB#]
+ [#endif VIEW_MODE#]
+ <!-- / table charts view -->
+ [#endif DATA_SOURCE#]
+ <!-- action usual -->
+ [#if DATA_SOURCE="charts_data"#]
+ <!-- table charts_data search -->
+ [#if VIEW_MODE="search_charts_data" || VIEW_MODE=""#]
+  [#inc charts_data_search_admin.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table charts_data search -->
+ <!-- table charts_data edit -->
+ [#if VIEW_MODE="edit_charts_data"#]
+   [#inc charts_data_edit.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table charts_data edit -->
+ <!-- table charts_data view --> 
+ [#if VIEW_MODE="view_charts_data"#]
+   [#inc charts_data_view.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table charts_data view -->
+ [#endif DATA_SOURCE#]
