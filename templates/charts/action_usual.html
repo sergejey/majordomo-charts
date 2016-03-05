@@ -35,6 +35,7 @@ $(function () {
         chart: {
             renderTo: 'container_<#ID#>',
             type: 'spline',
+            zoomType: 'x',
             events: {
                 load: requestData[#ID#]
             }
@@ -99,7 +100,7 @@ $(function () {
                         tooltip: {
                 valueSuffix: ' [#UNIT#]'
             },
-                        [#if MULTIPLE_AXIS="1"#]
+                        [#if "<#MULTIPLE_AXIS#>"=="1"#]
                         yAxis: [#NUM#],
                         [#endif MULTIPLE_AXIS#]
             // Define the data points. All series have a dummy year
