@@ -207,7 +207,7 @@ function usual(&$out) {
 
   }
 
-  $dt=(time())*1000;
+  $dt=(time()+$diff)*1000;
   $val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
   $val=(float)preg_replace('/[^\d\.]/', '', $val);
   $history[]=array($dt, (float)$val);
@@ -266,11 +266,13 @@ function usual(&$out) {
   $total=count($properties);
 
   $prop_name=$properties[0]['LINKED_PROPERTY'];
+  $unit=$properties[0]['UNIT'];
 
   for($i=0;$i<$total;$i++) {
    $properties[$i]['NUM']=$i;
-   if ($properties[$i]['LINKED_PROPERTY']!=$prop_name) {
+   if ($properties[$i]['LINKED_PROPERTY']!=$prop_name && ($properties[$i]['UNIT']!=$unit || $unit=='')) {
     $prop_name=$properties[$i]['LINKED_PROPERTY'];
+    $unit=$properties[$i]['UNIT'];
     $out['MULTIPLE_AXIS']=1;
    }
   }
