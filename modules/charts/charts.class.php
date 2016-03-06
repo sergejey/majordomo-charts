@@ -201,7 +201,7 @@ function usual(&$out) {
    for($i=0;$i<$total;$i++) {
     //$dt=($data[$i]['UNX']+3*60*60)*1000;
     $dt=((int)$data[$i]['UNX']+$diff)*1000;
-    $val=(float)preg_replace('/[^\d\.]/', '', $data[$i]['VALUE']);
+    $val=(float)preg_replace('/[^\d\.\-]/', '', $data[$i]['VALUE']);
     $history[]=array($dt, $val);
    }
 
@@ -209,7 +209,7 @@ function usual(&$out) {
 
   $dt=(time()+$diff)*1000;
   $val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
-  $val=(float)preg_replace('/[^\d\.]/', '', $val);
+  $val=(float)preg_replace('/[^\d\.\-]/', '', $val);
   $history[]=array($dt, (float)$val);
 
   if (count($history)==1) {
