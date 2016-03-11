@@ -4,6 +4,9 @@
  <!-- table charts search -->
  [#if VIEW_MODE="search_charts" || VIEW_MODE=""#]
   [#inc charts_search_admin.html#]
+<hr size="1">
+Usage: <b>&#091#module name="charts"#&#093</b>
+
  [#endif VIEW_MODE#]
  <!-- / table charts search -->
  <!-- table charts edit -->
@@ -48,6 +51,8 @@ Usage: <b>&#091#module name="charts" id="<#ID#>"#&#093</b> or <b>&#091#module na
  <!-- table charts_data search -->
  [#if VIEW_MODE="search_charts_data" || VIEW_MODE=""#]
   [#inc charts_data_search_admin.html#]
+
+
  [#endif VIEW_MODE#]
  <!-- / table charts_data search -->
  <!-- table charts_data edit -->

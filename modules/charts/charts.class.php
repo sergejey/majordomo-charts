@@ -226,7 +226,17 @@ function usual(&$out) {
  }
 
 
+ global $id;
+ if (!$this->id && $id) {
+  $this->id=$id;
+ }
+
  if ($this->id) {
+
+  if ($_GET['from_list']) {
+   $out['FROM_LIST']=1;
+  }
+
   $rec=SQLSelectOne("SELECT * FROM charts WHERE ID='".$this->id."'");
   if (!$rec['ID']) {
    return;
@@ -284,6 +294,11 @@ function usual(&$out) {
 
   outHash($rec, $out);
   $out['PROPERTIES']=$properties;
+ } else {
+
+  $charts=SQLSelect("SELECT * FROM charts ORDER BY TITLE");
+  $out['CHARTS']=$charts;
+
  }
 
 }

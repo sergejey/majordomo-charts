@@ -1,3 +1,20 @@
+[#if ID=""#]
+ [#begin CHARTS#]
+ <p>
+  <big><b><a href="?id=[#ID#]&from_list=1">[#TITLE#]</a></b></big>
+  [#if SUBTITLE!=""#]
+  <br>[#SUBTITLE#]
+  [#endif#]
+ </p>
+ [#end CHARTS#]
+[#endif#]
+
+[#if ID!=""#]
+
+[#if FROM_LIST="1"#]
+<p><a href="?">&lt;&lt;&lt; <#LANG_BACK#></a></p>
+[#endif#]
+
 <div id="container_<#ID#>" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
 <script src="<#ROOTHTML#>js/highcharts/highcharts.js"></script>
 [#if "<#SETTINGS_THEME#>"=="dark"#]
@@ -114,3 +131,4 @@ $(function () {
 });
 
 </script>
+[#endif ID#]
