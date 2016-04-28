@@ -54,7 +54,7 @@ $(function () {
         chart: {
             renderTo: 'container_<#ID#>',
             type: 'spline',
-            zoomType: 'x',			
+            zoomType: 'x',                      
             events: {
                 load: requestData[#ID#]
             }
@@ -67,7 +67,7 @@ $(function () {
             text: '<#SUBTITLE#>'
         },
         [#endif#]
-			
+                        
         xAxis: {
             type: 'datetime',
             dateTimeLabelFormats: { // don't display the dummy year
@@ -79,11 +79,11 @@ $(function () {
             }
         },
 
-          
+         [#if MULTIPLE_AXIS="1"#]
                 yAxis: [
                 [#begin PROPERTIES#]
                 { 
-				[#if SETTINGS!=""#][#SETTINGS#],[#endif#]
+                                [#if SETTINGS!=""#][#SETTINGS#],[#endif#]
             labels: {
                 format: '{value} [#UNIT#]',
                 style: {
@@ -100,7 +100,8 @@ $(function () {
         }[#if LAST!="1"#], [#endif#]
                 [#end PROPERTIES#]
                 ],              
-         
+
+        [#endif MULTIPLE_AXIS#] 
                 
 
         plotOptions: {
@@ -114,7 +115,7 @@ $(function () {
             shared: true
         },
 
-		
+                
         series: [
         [#begin PROPERTIES#]
         {
@@ -123,13 +124,14 @@ $(function () {
                         tooltip: {
                 valueSuffix: ' [#UNIT#]'
             },
-			[#if NO_MARKERS="1"#]
-			marker: {
-				enabled: false
-			},			
-			[#endif#]
-              
+                        [#if NO_MARKERS="1"#]
+                        marker: {
+                                enabled: false
+                        },                      
+                        [#endif#]
+              [#if MULTIPLE_AXIS="1"#]
               yAxis: [#NUM#],
+              [#endif#]
               
             // Define the data points. All series have a dummy year
             // of 1970/71 in order to be compared on the same x axis. Note
@@ -138,23 +140,23 @@ $(function () {
         }[#if LAST!="1"#], [#endif#]
         [#end PROPERTIES#]
         ]
-		
+                
     });
-	
-	[#else HISTORY_DEPTH#]
-	
-    chart<#ID#> = new Highcharts.Chart({	
+        
+        [#else HISTORY_DEPTH#]
+        
+    chart<#ID#> = new Highcharts.Chart({        
 
         chart: {
             type: '<#FIRST_TYPE#>',
-            renderTo: 'container_<#ID#>',			
+            renderTo: 'container_<#ID#>',                       
             plotBackgroundColor: null,
             plotBackgroundImage: null,
             plotBorderWidth: 0,
             plotShadow: false,
             events: {
                 load: requestData[#ID#]
-            }			
+            }                   
         },
 
         title: {
@@ -164,7 +166,7 @@ $(function () {
         subtitle: {
             text: '<#SUBTITLE#>'
         },
-        [#endif#]		
+        [#endif#]               
 
         pane: {
             startAngle: -150,
@@ -199,18 +201,18 @@ $(function () {
             }]
         },
 
-		
+                
                 yAxis: [
                 [#begin PROPERTIES#]
                 { 
-				
-			[#if SETTINGS!=""#][#SETTINGS#],[#endif#]
+                                
+                        [#if SETTINGS!=""#][#SETTINGS#],[#endif#]
             labels: {
                 format: '{value} [#UNIT#]',
                 style: {
                     color: Highcharts.getOptions().colors[[#NUM#]]
                 },
-                rotation: 'auto'				
+                rotation: 'auto'                                
             },
             title: {
                 text: '[#TITLE#]',
@@ -222,8 +224,8 @@ $(function () {
             [#if OPPOSITE="1"#], opposite: true[#endif#]
         }[#if LAST!="1"#], [#endif#]
                 [#end PROPERTIES#]
-                ],    		
-		
+                ],              
+                
 
         series: [
         [#begin PROPERTIES#]
@@ -245,10 +247,10 @@ $(function () {
         ]
 
     }
-	);	
-	
-	[#endif HISTORY_DEPTH#]
-	
+        );      
+        
+        [#endif HISTORY_DEPTH#]
+        
 });
 
 
