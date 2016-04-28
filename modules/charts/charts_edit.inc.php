@@ -79,6 +79,13 @@
       $properties[$i]['LINKED_OBJECT']=trim(${'linked_object'.$properties[$i]['ID']});
       global ${'linked_property'.$properties[$i]['ID']};
       $properties[$i]['LINKED_PROPERTY']=trim(${'linked_property'.$properties[$i]['ID']});
+	  
+      global ${'settings'.$properties[$i]['ID']};
+      $properties[$i]['SETTINGS']=trim(${'settings'.$properties[$i]['ID']});
+	  
+	  if (!$rec['HISTORY_DEPTH'] && !preg_match('/min/is',$properties[$i]['SETTINGS'])) {
+	   $properties[$i]['SETTINGS']="min:0";
+	  }
 
       global ${'type'.$properties[$i]['ID']};
       $properties[$i]['TYPE']=trim(${'type'.$properties[$i]['ID']});

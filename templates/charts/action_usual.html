@@ -17,6 +17,7 @@
 
 <div id="container_<#ID#>" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
 <script src="<#ROOTHTML#>js/highcharts/highcharts.js"></script>
+<script src="<#ROOTHTML#>js/highcharts/highcharts-more.js"></script>
 [#if "<#SETTINGS_THEME#>"=="dark"#]
 <script src="<#ROOTHTML#>js/highcharts/themes/dark-unica.js"></script>
 [#endif SETTINGS_THEME#]
@@ -48,11 +49,12 @@ function requestData[#ID#]() {
 
 
 $(function () { 
+    [#if HISTORY_DEPTH!="0"#]
     chart<#ID#> = new Highcharts.Chart({
         chart: {
             renderTo: 'container_<#ID#>',
             type: 'spline',
-            zoomType: 'x',
+            zoomType: 'x',			
             events: {
                 load: requestData[#ID#]
             }
@@ -65,6 +67,7 @@ $(function () {
             text: '<#SUBTITLE#>'
         },
         [#endif#]
+			
         xAxis: {
             type: 'datetime',
             dateTimeLabelFormats: { // don't display the dummy year
@@ -75,11 +78,12 @@ $(function () {
                 text: 'Date'
             }
         },
-                
-                [#if MULTIPLE_AXIS="1"#]
+
+          
                 yAxis: [
                 [#begin PROPERTIES#]
                 { 
+				[#if SETTINGS!=""#][#SETTINGS#],[#endif#]
             labels: {
                 format: '{value} [#UNIT#]',
                 style: {
@@ -96,7 +100,7 @@ $(function () {
         }[#if LAST!="1"#], [#endif#]
                 [#end PROPERTIES#]
                 ],              
-                [#endif MULTIPLE_AXIS#]
+         
                 
 
         plotOptions: {
@@ -109,6 +113,8 @@ $(function () {
         tooltip: {
             shared: true
         },
+
+		
         series: [
         [#begin PROPERTIES#]
         {
@@ -117,9 +123,14 @@ $(function () {
                         tooltip: {
                 valueSuffix: ' [#UNIT#]'
             },
-                        [#if "<#MULTIPLE_AXIS#>"=="1"#]
-                        yAxis: [#NUM#],
-                        [#endif MULTIPLE_AXIS#]
+			[#if NO_MARKERS="1"#]
+			marker: {
+				enabled: false
+			},			
+			[#endif#]
+              
+              yAxis: [#NUM#],
+              
             // Define the data points. All series have a dummy year
             // of 1970/71 in order to be compared on the same x axis. Note
             // that in JavaScript, months start at 0 for January, 1 for February etc.
@@ -127,8 +138,119 @@ $(function () {
         }[#if LAST!="1"#], [#endif#]
         [#end PROPERTIES#]
         ]
+		
     });
+	
+	[#else HISTORY_DEPTH#]
+	
+    chart<#ID#> = new Highcharts.Chart({	
+
+        chart: {
+            type: '<#FIRST_TYPE#>',
+            renderTo: 'container_<#ID#>',			
+            plotBackgroundColor: null,
+            plotBackgroundImage: null,
+            plotBorderWidth: 0,
+            plotShadow: false,
+            events: {
+                load: requestData[#ID#]
+            }			
+        },
+
+        title: {
+            text: '[#TITLE#]'
+        },
+        [#if SUBTITLE!=""#]
+        subtitle: {
+            text: '<#SUBTITLE#>'
+        },
+        [#endif#]		
+
+        pane: {
+            startAngle: -150,
+            endAngle: 150,
+            background: [{
+                backgroundColor: {
+                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                    stops: [
+                        [0, '#FFF'],
+                        [1, '#333']
+                    ]
+                },
+                borderWidth: 0,
+                outerRadius: '109%'
+            }, {
+                backgroundColor: {
+                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                    stops: [
+                        [0, '#333'],
+                        [1, '#FFF']
+                    ]
+                },
+                borderWidth: 1,
+                outerRadius: '107%'
+            }, {
+                // default background
+            }, {
+                backgroundColor: '#DDD',
+                borderWidth: 0,
+                outerRadius: '105%',
+                innerRadius: '103%'
+            }]
+        },
+
+		
+                yAxis: [
+                [#begin PROPERTIES#]
+                { 
+				
+			[#if SETTINGS!=""#][#SETTINGS#],[#endif#]
+            labels: {
+                format: '{value} [#UNIT#]',
+                style: {
+                    color: Highcharts.getOptions().colors[[#NUM#]]
+                },
+                rotation: 'auto'				
+            },
+            title: {
+                text: '[#TITLE#]',
+                style: {
+                    color: Highcharts.getOptions().colors[[#NUM#]]
+                }
+            },
+
+            [#if OPPOSITE="1"#], opposite: true[#endif#]
+        }[#if LAST!="1"#], [#endif#]
+                [#end PROPERTIES#]
+                ],    		
+		
+
+        series: [
+        [#begin PROPERTIES#]
+        {
+            name: '[#TITLE#]',
+            type: '[#TYPE#]',
+                        tooltip: {
+                valueSuffix: ' [#UNIT#]'
+            },
+              
+              yAxis: [#NUM#],
+              
+            // Define the data points. All series have a dummy year
+            // of 1970/71 in order to be compared on the same x axis. Note
+            // that in JavaScript, months start at 0 for January, 1 for February etc.
+            data: []
+        }[#if LAST!="1"#], [#endif#]
+        [#end PROPERTIES#]
+        ]
+
+    }
+	);	
+	
+	[#endif HISTORY_DEPTH#]
+	
 });
+
 
 </script>
 [#endif ID#]

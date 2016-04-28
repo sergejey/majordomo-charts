@@ -187,21 +187,42 @@ function usual(&$out) {
    $history_type=$chart['HISTORY_TYPE'];
 
    $real_depth=$history_depth*$history_type*60;
+   
+   if ($real_depth==0) {
+   
+	$val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
+	$val=(float)preg_replace('/[^\d\.\-]/', '', $val);
+	$history[]=array((float)$val);
+   
+   
+   } else {
 
    $start_time=time()-$real_depth;
    $end_time=time();
 
-   $data=SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM phistory WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED>=('".date('Y-m-d H:i:s', $start_time)."') AND ADDED<=('".date('Y-m-d H:i:s', $end_time)."') ORDER BY ADDED");
-   $total=count($data);
-
    $tm1=strtotime(date('Y-m-d H:i:s'));
    $tm2=strtotime(gmdate('Y-m-d H:i:s'));
    $diff=$tm1-$tm2;
-   
+
+   $data0=SQLSelectOne("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM phistory WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED<=('".date('Y-m-d H:i:s', $start_time)."') ORDER BY ADDED DESC LIMIT 1");
+   if ($data0['ID']) {
+    $dt=((int)$start_time+$diff)*1000;
+    $val=(float)preg_replace('/[^\d\.\-]/', '', $data0['VALUE']);
+    $history[]=array($dt, $val);
+   }
+
+   $data=SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM phistory WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED>=('".date('Y-m-d H:i:s', $start_time)."') AND ADDED<=('".date('Y-m-d H:i:s', $end_time)."') ORDER BY ADDED");
+   $total=count($data);
+
+
+   $only_boolean=true;
    for($i=0;$i<$total;$i++) {
     //$dt=($data[$i]['UNX']+3*60*60)*1000;
     $dt=((int)$data[$i]['UNX']+$diff)*1000;
     $val=(float)preg_replace('/[^\d\.\-]/', '', $data[$i]['VALUE']);
+	if ($val!=0 && $val!=1) {
+	 $only_boolean=false;
+	}
     $history[]=array($dt, $val);
    }
 
@@ -214,9 +235,25 @@ function usual(&$out) {
 
   if (count($history)==1) {
    $history[]=array($dt-60*1000, (float)$val);
+  } else {
+   if ($only_boolean) {
+    $new_history=array();
+	$total=count($history);
+	 for($i=0;$i<$total;$i++) {
+	  $new_history[]=$history[$i];
+	  if (isset($history[$i+1])) {
+	   $new_rec=$history[$i+1];
+	   $new_rec[0]=$new_rec[0]-1;
+	   $new_rec[1]=$history[$i][1];
+	   $new_history[]=$new_rec;
+	  }
+	 }
+	 $history=$new_history;
+	 unset($new_history);
+   }
   }
 
-
+  }
 
   $result['HISTORY']=$history;
 
@@ -268,12 +305,18 @@ function usual(&$out) {
     $out['INTERVAL']=15*60;
    }
   } else {
-   $out['INTERVAL']=15*60;
+   if ($rec['HISTORY_DEPTH']>0) {
+    $out['INTERVAL']=15*60;   
+   } else {
+    $out['INTERVAL']=2;
+   }
   }
 
 
   $properties=SQLSelect("SELECT * FROM charts_data WHERE CHART_ID='".$rec['ID']."' ORDER BY PRIORITY DESC, ID");
   $total=count($properties);
+
+  $out['FIRST_TYPE']=$properties[0]['TYPE'];
 
   $prop_name=$properties[0]['LINKED_PROPERTY'];
   $unit=$properties[0]['UNIT'];
@@ -284,6 +327,10 @@ function usual(&$out) {
     $prop_name=$properties[$i]['LINKED_PROPERTY'];
     $unit=$properties[$i]['UNIT'];
     $out['MULTIPLE_AXIS']=1;
+   }
+   if ($properties[$i]['TYPE']=='spline_min') {
+    $properties[$i]['TYPE']='spline';
+	$properties[$i]['NO_MARKERS']=1;
    }
   }
   $properties[count($properties)-1]['LAST']=1;
@@ -403,6 +450,7 @@ charts_data -
  charts_data: CHART_ID int(10) NOT NULL DEFAULT '0'
  charts_data: LINKED_OBJECT varchar(100) NOT NULL DEFAULT ''
  charts_data: LINKED_PROPERTY varchar(100) NOT NULL DEFAULT ''
+ charts_data: SETTINGS text NOT NULL DEFAULT '' 
  charts_data: PRIORITY int(10) NOT NULL DEFAULT '0'
 EOD;
   parent::dbInstall($data);
