@@ -18,6 +18,7 @@
 <div id="container_<#ID#>" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
 <script src="<#ROOTHTML#>js/highcharts/highcharts.js"></script>
 <script src="<#ROOTHTML#>js/highcharts/highcharts-more.js"></script>
+<script src="<#ROOTHTML#>js/highcharts/modules/solid-gauge.js"></script>
 [#if "<#SETTINGS_THEME#>"=="dark"#]
 <script src="<#ROOTHTML#>js/highcharts/themes/dark-unica.js"></script>
 [#endif SETTINGS_THEME#]
@@ -144,7 +145,8 @@ $(function () {
     });
         
         [#else HISTORY_DEPTH#]
-        
+      
+	[#if FIRST_TYPE="gauge"#]
     chart<#ID#> = new Highcharts.Chart({        
 
         chart: {
@@ -158,7 +160,6 @@ $(function () {
                 load: requestData[#ID#]
             }                   
         },
-
         title: {
             text: '[#TITLE#]'
         },
@@ -167,7 +168,6 @@ $(function () {
             text: '<#SUBTITLE#>'
         },
         [#endif#]               
-
         pane: {
             startAngle: -150,
             endAngle: 150,
@@ -201,11 +201,9 @@ $(function () {
             }]
         },
 
-                
                 yAxis: [
                 [#begin PROPERTIES#]
                 { 
-                                
                         [#if SETTINGS!=""#][#SETTINGS#],[#endif#]
             labels: {
                 format: '{value} [#UNIT#]',
@@ -225,8 +223,6 @@ $(function () {
         }[#if LAST!="1"#], [#endif#]
                 [#end PROPERTIES#]
                 ],              
-                
-
         series: [
         [#begin PROPERTIES#]
         {
@@ -235,12 +231,7 @@ $(function () {
                         tooltip: {
                 valueSuffix: ' [#UNIT#]'
             },
-              
               yAxis: [#NUM#],
-              
-            // Define the data points. All series have a dummy year
-            // of 1970/71 in order to be compared on the same x axis. Note
-            // that in JavaScript, months start at 0 for January, 1 for February etc.
             data: []
         }[#if LAST!="1"#], [#endif#]
         [#end PROPERTIES#]
@@ -248,9 +239,116 @@ $(function () {
 
     }
         );      
+		[#endif FIRST_TYPE#]
+		
+	[#if FIRST_TYPE="solidgauge"#]
+
+ 	
+	
+chart<#ID#> = new Highcharts.Chart({        
+
+        chart: {
+            type: '<#FIRST_TYPE#>',
+            renderTo: 'container_<#ID#>',                       
+            events: {
+                load: requestData[#ID#]
+            }                   
+        },
+        title: {
+            text: '[#TITLE#]'
+        },
+        [#if SUBTITLE!=""#]
+        subtitle: {
+            text: '<#SUBTITLE#>'
+        },
+        [#endif#]               
+
+        credits: {
+            enabled: false
+        },	
+
+        plotOptions: {
+            solidgauge: {
+                dataLabels: {
+                    y: 5,
+                    borderWidth: 0,
+                    useHTML: true
+                }
+            }
+        },
+		
+        pane: {
+            center: ['50%', '85%'],
+            size: '100%',
+            startAngle: -90,
+            endAngle: 90,
+            background: {
+                backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#EEE',
+                innerRadius: '60%',
+                outerRadius: '100%',
+                shape: 'arc'
+            }
+        },
+
+        tooltip: {
+            enabled: false
+        },		
+		
+                yAxis: [
+                [#begin PROPERTIES#]
+                { 
+            minorTickInterval: null,
+            tickPixelInterval: 400,
+            tickWidth: 0,
+            [#if SETTINGS!=""#][#SETTINGS#],[#endif#]
+            labels: {
+                format: '{value} [#UNIT#]',
+				y: 16,
+                style: {
+                    color: Highcharts.getOptions().colors[[#NUM#]]
+                }                                
+            },
+            title: {
+				y: -90,
+                text: '[#TITLE#]',
+                style: {
+                    color: Highcharts.getOptions().colors[[#NUM#]]
+                }
+            },
+credits: {
+            enabled: false
+        },			
+
+            [#if OPPOSITE="1"#], opposite: true[#endif#]
+        }[#if LAST!="1"#], [#endif#]
+                [#end PROPERTIES#]
+                ],              
+        series: [
+        [#begin PROPERTIES#]
+        {
+            name: '[#TITLE#]',
+            type: '[#TYPE#]',
+            dataLabels: {
+                format: '<div style="text-align:center"><span style="font-size:25px;color:' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+                       '<span style="font-size:12px;color:silver">[#UNIT#]</span></div>'
+            },
+            tooltip: {
+                valueSuffix: ' [#UNIT#]'
+            },
+			
+              yAxis: [#NUM#],
+            data: []
+        }[#if LAST!="1"#], [#endif#]
+        [#end PROPERTIES#]
+        ]
+
+    }
+        );	
+	
+		[#endif FIRST_TYPE#]
         
         [#endif HISTORY_DEPTH#]
-        
 });
 
 
