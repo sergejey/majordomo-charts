@@ -190,9 +190,9 @@ function usual(&$out) {
    
    if ($real_depth==0) {
    
-	$val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
-	$val=(float)preg_replace('/[^\d\.\-]/', '', $val);
-	$history[]=array((float)$val);
+        $val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
+        $val=(float)preg_replace('/[^\d\.\-]/', '', $val);
+        $history[]=array((float)$val);
    
    
    } else {
@@ -220,9 +220,9 @@ function usual(&$out) {
     //$dt=($data[$i]['UNX']+3*60*60)*1000;
     $dt=((int)$data[$i]['UNX']+$diff)*1000;
     $val=(float)preg_replace('/[^\d\.\-]/', '', $data[$i]['VALUE']);
-	if ($val!=0 && $val!=1) {
-	 $only_boolean=false;
-	}
+        if ($val!=0 && $val!=1) {
+         $only_boolean=false;
+        }
     $history[]=array($dt, $val);
    }
 
@@ -238,18 +238,18 @@ function usual(&$out) {
   } else {
    if ($only_boolean) {
     $new_history=array();
-	$total=count($history);
-	 for($i=0;$i<$total;$i++) {
-	  $new_history[]=$history[$i];
-	  if (isset($history[$i+1])) {
-	   $new_rec=$history[$i+1];
-	   $new_rec[0]=$new_rec[0]-1;
-	   $new_rec[1]=$history[$i][1];
-	   $new_history[]=$new_rec;
-	  }
-	 }
-	 $history=$new_history;
-	 unset($new_history);
+        $total=count($history);
+         for($i=0;$i<$total;$i++) {
+          $new_history[]=$history[$i];
+          if (isset($history[$i+1])) {
+           $new_rec=$history[$i+1];
+           $new_rec[0]=$new_rec[0]-1;
+           $new_rec[1]=$history[$i][1];
+           $new_history[]=$new_rec;
+          }
+         }
+         $history=$new_history;
+         unset($new_history);
    }
   }
 
@@ -330,7 +330,7 @@ function usual(&$out) {
    }
    if ($properties[$i]['TYPE']=='spline_min') {
     $properties[$i]['TYPE']='spline';
-	$properties[$i]['NO_MARKERS']=1;
+        $properties[$i]['NO_MARKERS']=1;
    }
   }
   $properties[count($properties)-1]['LAST']=1;
@@ -440,6 +440,7 @@ charts_data -
  charts: TITLE varchar(100) NOT NULL DEFAULT ''
  charts: SUBTITLE varchar(255) NOT NULL DEFAULT ''
  charts: TYPE varchar(255) NOT NULL DEFAULT ''
+ charts: THEME varchar(255) NOT NULL DEFAULT ''
  charts: HISTORY_DEPTH int(10) NOT NULL DEFAULT '0'
  charts: HISTORY_TYPE int(3) NOT NULL DEFAULT '1'
  charts_data: ID int(10) unsigned NOT NULL auto_increment

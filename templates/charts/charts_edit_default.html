@@ -26,6 +26,22 @@
  </label>
  <div class="col-lg-4"><input type="text" class="form-control" name="subtitle" value="[#SUBTITLE#]" id="subtitle"></div>
 </div>
+
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_THEME#] style="color:red;font-weight:bold"[#endif#]>
+ Design theme:
+ </label>
+ <div class="col-lg-4">
+ <select name="theme" class="form-control">
+  <option value="">Default
+  [#begin THEMES#]
+  <option value="[#TITLE#]"[#if TITLE="<#THEME#>"#] selected[#endif#]>[#TITLE#]
+  [#end THEMES#]
+ </select>
+ </div>
+</div>
+
+
 <!-- TYPE (varchar) -->
 <!--#
 <div class="form-group">

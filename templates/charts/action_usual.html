@@ -19,9 +19,13 @@
 <script src="<#ROOTHTML#>js/highcharts/highcharts.js"></script>
 <script src="<#ROOTHTML#>js/highcharts/highcharts-more.js"></script>
 <script src="<#ROOTHTML#>js/highcharts/modules/solid-gauge.js"></script>
+[#if THEME=""#]
 [#if "<#SETTINGS_THEME#>"=="dark"#]
 <script src="<#ROOTHTML#>js/highcharts/themes/dark-unica.js"></script>
 [#endif SETTINGS_THEME#]
+[#else THEME#]
+<script src="<#ROOTHTML#>js/highcharts/themes/[#THEME#].js"></script>
+[#endif THEME#]
 <script language="javascript">
 
 var chartUpdateTimer<#ID#>;
@@ -146,7 +150,7 @@ $(function () {
         
         [#else HISTORY_DEPTH#]
       
-	[#if FIRST_TYPE="gauge"#]
+        [#if FIRST_TYPE="gauge"#]
     chart<#ID#> = new Highcharts.Chart({        
 
         chart: {
@@ -239,12 +243,12 @@ $(function () {
 
     }
         );      
-		[#endif FIRST_TYPE#]
-		
-	[#if FIRST_TYPE="solidgauge"#]
+                [#endif FIRST_TYPE#]
+                
+        [#if FIRST_TYPE="solidgauge"#]
 
- 	
-	
+        
+        
 chart<#ID#> = new Highcharts.Chart({        
 
         chart: {
@@ -265,7 +269,7 @@ chart<#ID#> = new Highcharts.Chart({
 
         credits: {
             enabled: false
-        },	
+        },      
 
         plotOptions: {
             solidgauge: {
@@ -276,7 +280,7 @@ chart<#ID#> = new Highcharts.Chart({
                 }
             }
         },
-		
+                
         pane: {
             center: ['50%', '85%'],
             size: '100%',
@@ -292,8 +296,8 @@ chart<#ID#> = new Highcharts.Chart({
 
         tooltip: {
             enabled: false
-        },		
-		
+        },              
+                
                 yAxis: [
                 [#begin PROPERTIES#]
                 { 
@@ -303,13 +307,13 @@ chart<#ID#> = new Highcharts.Chart({
             [#if SETTINGS!=""#][#SETTINGS#],[#endif#]
             labels: {
                 format: '{value} [#UNIT#]',
-				y: 16,
+                                y: 16,
                 style: {
                     color: Highcharts.getOptions().colors[[#NUM#]]
                 }                                
             },
             title: {
-				y: -90,
+                                y: -90,
                 text: '[#TITLE#]',
                 style: {
                     color: Highcharts.getOptions().colors[[#NUM#]]
@@ -317,7 +321,7 @@ chart<#ID#> = new Highcharts.Chart({
             },
 credits: {
             enabled: false
-        },			
+        },                      
 
             [#if OPPOSITE="1"#], opposite: true[#endif#]
         }[#if LAST!="1"#], [#endif#]
@@ -336,7 +340,7 @@ credits: {
             tooltip: {
                 valueSuffix: ' [#UNIT#]'
             },
-			
+                        
               yAxis: [#NUM#],
             data: []
         }[#if LAST!="1"#], [#endif#]
@@ -344,9 +348,9 @@ credits: {
         ]
 
     }
-        );	
-	
-		[#endif FIRST_TYPE#]
+        );      
+        
+                [#endif FIRST_TYPE#]
         
         [#endif HISTORY_DEPTH#]
 });

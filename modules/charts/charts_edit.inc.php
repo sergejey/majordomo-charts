@@ -31,6 +31,11 @@
   //updating 'TYPE' (varchar)
    global $type;
    $rec['TYPE']=$type;
+
+   global $theme;
+   $rec['THEME']=$theme;
+
+
   }
   // step: data
   if ($this->tab=='data') {
@@ -79,13 +84,13 @@
       $properties[$i]['LINKED_OBJECT']=trim(${'linked_object'.$properties[$i]['ID']});
       global ${'linked_property'.$properties[$i]['ID']};
       $properties[$i]['LINKED_PROPERTY']=trim(${'linked_property'.$properties[$i]['ID']});
-	  
+          
       global ${'settings'.$properties[$i]['ID']};
       $properties[$i]['SETTINGS']=trim(${'settings'.$properties[$i]['ID']});
-	  
-	  if (!$rec['HISTORY_DEPTH'] && !preg_match('/min/is',$properties[$i]['SETTINGS'])) {
-	   $properties[$i]['SETTINGS']="min:0";
-	  }
+          
+          if (!$rec['HISTORY_DEPTH'] && !preg_match('/min/is',$properties[$i]['SETTINGS'])) {
+           $properties[$i]['SETTINGS']="min:0";
+          }
 
       global ${'type'.$properties[$i]['ID']};
       $properties[$i]['TYPE']=trim(${'type'.$properties[$i]['ID']});
@@ -121,3 +126,14 @@
    }
   }
   outHash($rec, $out);
+
+  $path=ROOT.'js/highcharts/themes';
+
+  $files=scandir($path);
+  foreach($files as $f) {
+   if ($f=='.' || $f=='..') {
+    continue;
+   }
+   $f=str_replace('.js', '', $f);
+   $out['THEMES'][]=array('TITLE'=>$f);
+  }
