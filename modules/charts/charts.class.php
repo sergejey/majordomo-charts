@@ -135,6 +135,26 @@ function admin(&$out) {
    $this->redirect("?data_source=charts");
   }
  }
+
+  if ($this->view_mode=='clone_charts') {
+   $rec=SQLSelectOne("SELECT * FROM charts WHERE ID='".$this->id."'");
+
+   $charts_data=SQLSelect("SELECT * FROM charts_data WHERE CHART_ID='".$rec['ID']."'");
+   
+   unset($rec['ID']);
+   $rec['TITLE']=$rec['TITLE'].' (copy)';
+   $rec['ID']=SQLInsert('charts', $rec);
+
+   $total=count($charts_data);
+   for($i=0;$i<$total;$i++) {
+    unset($charts_data[$i]['ID']);
+    $charts_data[$i]['CHART_ID']=$rec['ID'];
+    SQLInsert('charts_data', $charts_data[$i]);
+   }
+
+   $this->redirect("?id=".$rec['ID']."&view_mode=edit_charts");
+  }
+
  if (isset($this->data_source) && !$_GET['data_source'] && !$_POST['data_source']) {
   $out['SET_DATASOURCE']=1;
  }
@@ -320,6 +340,7 @@ function usual(&$out) {
 
   $prop_name=$properties[0]['LINKED_PROPERTY'];
   $unit=$properties[0]['UNIT'];
+  $out['FIRST_UNIT']=$unit;
 
   for($i=0;$i<$total;$i++) {
    $properties[$i]['NUM']=$i;
@@ -372,6 +393,7 @@ function usual(&$out) {
 */
  function delete_charts($id) {
   $rec=SQLSelectOne("SELECT * FROM charts WHERE ID='$id'");
+  SQLExec("DELETE FROM charts_data WHERE CHART_ID='".$rec['ID']."'");
   // some action for related tables
   SQLExec("DELETE FROM charts WHERE ID='".$rec['ID']."'");
  }

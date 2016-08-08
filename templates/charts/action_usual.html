@@ -78,9 +78,6 @@ $(function () {
             dateTimeLabelFormats: { // don't display the dummy year
                 month: '%e. %b',
                 year: '%b'
-            },
-            title: {
-                text: 'Date'
             }
         },
 
@@ -105,7 +102,28 @@ $(function () {
         }[#if LAST!="1"#], [#endif#]
                 [#end PROPERTIES#]
                 ],              
-
+        [#else MULTIPLE_AXIS#]
+                yAxis: [
+                [#begin PROPERTIES#]
+                { 
+                                [#if SETTINGS!=""#][#SETTINGS#],[#endif#]
+            labels: {
+                format: '{value} [#UNIT#]',
+                style: {
+                    color: Highcharts.getOptions().colors[[#NUM#]]
+                }
+            },
+            title: {
+                text: '',
+                style: {
+                    color: Highcharts.getOptions().colors[[#NUM#]]
+                }
+            }
+            [#if OPPOSITE="1"#], opposite: true[#endif#]
+        }[#if LAST!="1"#], [#endif#]
+                [#end PROPERTIES#]
+                ],              
+        [#else MULTIPLE_AXIS#]
         [#endif MULTIPLE_AXIS#] 
                 
 
@@ -114,6 +132,9 @@ $(function () {
                 marker: {
                     enabled: true
                 }
+            },
+            series: {
+                fillOpacity: 0.25
             }
         },
         tooltip: {
