@@ -452,7 +452,7 @@ function usual(&$out) {
 *
 * @access private
 */
- function dbInstall() {
+ function dbInstall($data) {
 /*
 charts - 
 charts_data - 
