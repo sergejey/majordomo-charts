@@ -30,10 +30,10 @@
    $rec['SUBTITLE']=$subtitle;
   //updating 'TYPE' (varchar)
    global $type;
-   $rec['TYPE']=$type;
+   $rec['TYPE']=$type.'';
 
    global $theme;
-   $rec['THEME']=$theme;
+   $rec['THEME']=$theme.'';
 
 
   }
