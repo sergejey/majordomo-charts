@@ -10,7 +10,6 @@
 [#endif#]
 
 [#if ID!=""#]
-
 [#if FROM_LIST="1"#]
 <p><a href="?">&lt;&lt;&lt; <#LANG_BACK#></a></p>
 [#endif#]
@@ -33,8 +32,9 @@ var chartUpdateTimer<#ID#>;
 function requestData[#ID#]() {
  //alert('load data!');
  [#begin PROPERTIES#]
+    var url='<#ROOTHTML#>ajax/charts.html?id=<#ID#>&prop_id=[#ID#]';
     $.ajax({
-        url: '<#ROOTHTML#>ajax/charts.html?id=<#ID#>&prop_id=[#ID#]',
+        url: url,
         success: function(data) {
          var obj=jQuery.parseJSON(data);
          if (obj.RESULT=='OK') {
@@ -379,3 +379,4 @@ credits: {
 
 </script>
 [#endif ID#]
+

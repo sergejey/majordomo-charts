@@ -167,6 +167,24 @@ function admin(&$out) {
   }
  }
 }
+
+
+ function getDepthByType($depth) {
+   if (preg_match('/(\d+)(\w+)/', $depth, $m)) {
+    $depth=$m[1];
+    if ($m[2]=='d') {
+     $type=24*60;
+    } elseif ($m[2]=='h') {
+     $type=60;
+    } elseif ($m[2]=='m') {
+     $type=24*30*60;
+    }
+   } else {
+    $chart['HISTORY_DEPTH']=7;
+    $chart['HISTORY_TYPE']=24;
+   }
+   return array($depth, $type);
+ }
 /**
 * FrontEnd
 *
@@ -181,15 +199,27 @@ function usual(&$out) {
 
   global $id;
   global $prop_id;
-  $chart=SQLSelectOne("SELECT * FROM charts WHERE ID='".(int)$id."'");
-  if (!$chart['ID']) {
-   $result['ERROR']=1;
-   $result['ERROR_DATA']="Invalid chart id";
-   echo json_encode($result);
-   exit;
-  }
 
-  $chart_data=SQLSelectOne("SELECT * FROM charts_data WHERE ID='".(int)$prop_id."' AND CHART_ID='".(int)$chart['ID']."'");
+  if ($id=='config') {
+   $chart=array();
+   $chart_data=array();
+
+   $tmp=explode('.', $prop_id);
+   $chart_data['LINKED_OBJECT']=$tmp[0];
+   $chart_data['LINKED_PROPERTY']=$tmp[1];
+   $depth=$tmp[2];
+   list($chart['HISTORY_DEPTH'], $chart['HISTORY_TYPE']) = $this->getDepthByType($depth);
+
+  } else {
+   $chart=SQLSelectOne("SELECT * FROM charts WHERE ID='".(int)$id."'");
+   if (!$chart['ID']) {
+    $result['ERROR']=1;
+    $result['ERROR_DATA']="Invalid chart id";
+    echo json_encode($result);
+    exit;
+   }
+   $chart_data=SQLSelectOne("SELECT * FROM charts_data WHERE ID='".(int)$prop_id."' AND CHART_ID='".(int)$chart['ID']."'");
+  }
 
   $obj=getObject($chart_data['LINKED_OBJECT']);
   $prop_id=$obj->getPropertyByName($chart_data['LINKED_PROPERTY'], $obj->class_id, $obj->id);
@@ -294,9 +324,16 @@ function usual(&$out) {
    $out['FROM_LIST']=1;
   }
 
-  $rec=SQLSelectOne("SELECT * FROM charts WHERE ID='".$this->id."'");
-  if (!$rec['ID']) {
-   return;
+  if ($this->id=='config') {
+   $rec=array();
+   $rec['ID']='config';
+   list($rec['HISTORY_DEPTH'], $rec['HISTORY_TYPE']) = $this->getDepthByType($period);
+  } else {
+   $rec=SQLSelectOne("SELECT * FROM charts WHERE ID='".$this->id."'");
+   if (!$rec['ID']) {
+    return;
+   }
+
   }
 
   if ($this->width) {
@@ -333,7 +370,21 @@ function usual(&$out) {
   }
 
 
-  $properties=SQLSelect("SELECT * FROM charts_data WHERE CHART_ID='".$rec['ID']."' ORDER BY PRIORITY DESC, ID");
+  if ($this->id!='config') {
+   $properties=SQLSelect("SELECT * FROM charts_data WHERE CHART_ID='".$rec['ID']."' ORDER BY PRIORITY DESC, ID");
+  } else {
+   $prop=array();
+   $prop['TYPE']='spline';
+   global $period;
+   global $property;
+   $tmp=explode('.', $property);
+   $prop['ID']=$property.'.'.$period;
+   $prop['TITLE']=$property;
+   $prop['LINKED_OBJECT']=$tmp[0];
+   $prop['LINKED_PROPERTY']=$tmp[1];
+   $properties=array($prop);
+   //print_r($properties);exit;
+  }
   $total=count($properties);
 
   $out['FIRST_TYPE']=$properties[0]['TYPE'];
@@ -473,7 +524,7 @@ charts_data -
  charts_data: CHART_ID int(10) NOT NULL DEFAULT '0'
  charts_data: LINKED_OBJECT varchar(100) NOT NULL DEFAULT ''
  charts_data: LINKED_PROPERTY varchar(100) NOT NULL DEFAULT ''
- charts_data: SETTINGS text NOT NULL DEFAULT '' 
+ charts_data: SETTINGS text
  charts_data: PRIORITY int(10) NOT NULL DEFAULT '0'
 EOD;
   parent::dbInstall($data);
