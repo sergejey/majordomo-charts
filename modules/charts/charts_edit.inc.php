@@ -65,7 +65,7 @@
    if ($this->mode=='update') {
     global $title_new;
         if ($title_new) {
-         $prop=array('TITLE'=>$title_new,'CHART_ID'=>$rec['ID']);
+         $prop=array('TITLE'=>$title_new,'CHART_ID'=>$rec['ID'], 'SETTINGS'=>'', 'LINKED_OBJECT'=>'', 'LINKED_PROPERTY'=>'');
          $new_id=SQLInsert('charts_data',$prop);
         }
    }
