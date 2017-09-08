@@ -232,6 +232,11 @@ function usual(&$out) {
   $result['RESULT']='OK';
   if ($pvalue['ID']) {
 
+   if (defined('SEPARATE_HISTORY_STORAGE') && SEPARATE_HISTORY_STORAGE == 1) {
+    $history_table = createHistoryTable($pvalue['ID']);
+   } else {
+    $history_table = 'phistory';
+   }
 
    $history_depth=$chart['HISTORY_DEPTH'];
    $history_type=$chart['HISTORY_TYPE'];
@@ -254,14 +259,14 @@ function usual(&$out) {
    $tm2=strtotime(gmdate('Y-m-d H:i:s'));
    $diff=$tm1-$tm2;
 
-   $data0=SQLSelectOne("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM phistory WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED<=('".date('Y-m-d H:i:s', $start_time)."') ORDER BY ADDED DESC LIMIT 1");
+   $data0=SQLSelectOne("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED<=('".date('Y-m-d H:i:s', $start_time)."') ORDER BY ADDED DESC LIMIT 1");
    if ($data0['ID']) {
     $dt=((int)$start_time+$diff)*1000;
     $val=(float)preg_replace('/[^\d\.\-]/', '', $data0['VALUE']);
     $history[]=array($dt, $val);
    }
 
-   $data=SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM phistory WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED>=('".date('Y-m-d H:i:s', $start_time)."') AND ADDED<=('".date('Y-m-d H:i:s', $end_time)."') ORDER BY ADDED");
+   $data=SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED>=('".date('Y-m-d H:i:s', $start_time)."') AND ADDED<=('".date('Y-m-d H:i:s', $end_time)."') ORDER BY ADDED");
    $total=count($data);
 
 
