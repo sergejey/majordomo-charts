@@ -400,7 +400,7 @@ function usual(&$out) {
 
   for($i=0;$i<$total;$i++) {
    $properties[$i]['NUM']=$i;
-   if ($properties[$i]['LINKED_PROPERTY']!=$prop_name && ($properties[$i]['UNIT']!=$unit || $unit=='')) {
+   if (($properties[$i]['UNIT']!=$unit || $unit=='')) {
     $prop_name=$properties[$i]['LINKED_PROPERTY'];
     $unit=$properties[$i]['UNIT'];
     $out['MULTIPLE_AXIS']=1;
@@ -487,7 +487,11 @@ function usual(&$out) {
 * @access private
 */
  function install($data='') {
+  //
+  //@include_once(ROOT.'languages/'.$this->name.'_'.SETTINGS_SITE_LANGUAGE.'.php');
+  //@include_once(ROOT.'languages/'.$this->name.'_default'.'.php');
   parent::install();
+  SQLExec("UPDATE project_modules SET TITLE='".LANG_GENERAL_GRAPHICS."' WHERE NAME='".$this->name."'");
  }
 /**
 * Uninstall

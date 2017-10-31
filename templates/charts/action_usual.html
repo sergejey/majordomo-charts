@@ -25,6 +25,11 @@
 [#else THEME#]
 <script src="<#ROOTHTML#>js/highcharts/themes/[#THEME#].js"></script>
 [#endif THEME#]
+    <style>
+        .highcharts-background {
+            fill: rgba(0, 0, 0, 0);
+        }
+    </style>
 <script language="javascript">
 
 var chartUpdateTimer<#ID#>;
