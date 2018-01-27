@@ -209,7 +209,6 @@ function usual(&$out) {
    $chart_data['LINKED_PROPERTY']=$tmp[1];
    $depth=$tmp[2];
    list($chart['HISTORY_DEPTH'], $chart['HISTORY_TYPE']) = $this->getDepthByType($depth);
-
   } else {
    $chart=SQLSelectOne("SELECT * FROM charts WHERE ID='".(int)$id."'");
    if (!$chart['ID']) {
@@ -218,17 +217,31 @@ function usual(&$out) {
     echo json_encode($result);
     exit;
    }
-   $chart_data=SQLSelectOne("SELECT * FROM charts_data WHERE ID='".(int)$prop_id."' AND CHART_ID='".(int)$chart['ID']."'");
+   global $multi_data;
+   if ($multi_data) {
+    $chart_data=SQLSelect("SELECT * FROM charts_data WHERE CHART_ID='".(int)$chart['ID']."'");
+    $total = count($chart_data);
+    $result['RESULT']='OK';
+    $result['HISTORY']=array();
+    for($i=0;$i<$total;$i++) {
+     $rec=array();
+     $value = getGlobal($chart_data[$i]['LINKED_OBJECT'].'.'.$chart_data[$i]['LINKED_PROPERTY']);
+     $rec['y']=(float)$value;
+     $rec['name']=$chart_data[$i]['TITLE'].' ('.$value.' '.$chart_data[$i]['UNIT'].')';
+     $result['HISTORY'][]=$rec;
+    }
+    echo json_encode($result);
+    exit;
+   } else {
+    $chart_data=SQLSelectOne("SELECT * FROM charts_data WHERE ID='".(int)$prop_id."' AND CHART_ID='".(int)$chart['ID']."'");
+   }
   }
 
   $obj=getObject($chart_data['LINKED_OBJECT']);
   $prop_id=$obj->getPropertyByName($chart_data['LINKED_PROPERTY'], $obj->class_id, $obj->id);
 
   $pvalue=SQLSelectOne("SELECT * FROM pvalues WHERE PROPERTY_ID='".$prop_id."' AND OBJECT_ID='".$obj->id."'");
-
-
   $history=array();
-
   $result['RESULT']='OK';
   if ($pvalue['ID']) {
 
@@ -266,10 +279,45 @@ function usual(&$out) {
     $history[]=array($dt, $val);
    }
 
-   $data=SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED>=('".date('Y-m-d H:i:s', $start_time)."') AND ADDED<=('".date('Y-m-d H:i:s', $end_time)."') ORDER BY ADDED");
+    //to-do: for stacked areas get fixed history
+    if ($chart_data['TYPE']=='area_stack') {
+     $pre_data=SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED>=('".date('Y-m-d H:i:s', $start_time)."') AND ADDED<=('".date('Y-m-d H:i:s', $end_time)."') ORDER BY ADDED");
+     if ($history_type>60) {
+      //hour average
+      $range = 60 * 60;
+     } else {
+      //every minute
+      $range = 5*60;
+     }
+
+     $start_time = round($start_time/$range)*$range;
+     $current_time = $start_time;
+     $avg_array=array();
+     $data = array();
+     $total = count($pre_data);
+     $avg = 0;
+     for ($i = 0; $i < $total; $i++) {
+      $data_time=$pre_data[$i]['UNX'];
+      if ($data_time>=$current_time) {
+       $avg_count = count($avg_array);
+       if ($avg_count>0) {
+        $avg = round(array_sum($avg_array) / count($avg_array),2);
+       }
+       //echo date('Y-m-d H:i:s',$current_time)." - ".date('H:i:s',$current_time+$range).": ";echo str_repeat(' ',5*1024);flush();flush();
+       //echo $avg."<br/> ";echo str_repeat(' ',5*1024);flush();flush();
+       $data[]=array('UNX'=>$current_time,'VALUE'=>$avg);
+       $current_time+=$range;
+       $avg_array = array();
+      } else {
+       $avg_array[]=$pre_data[$i]['VALUE'];
+      }
+     }
+
+    } else {
+     $data=SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED>=('".date('Y-m-d H:i:s', $start_time)."') AND ADDED<=('".date('Y-m-d H:i:s', $end_time)."') ORDER BY ADDED");
+    }
+
    $total=count($data);
-
-
    $only_boolean=true;
    for($i=0;$i<$total;$i++) {
     //$dt=($data[$i]['UNX']+3*60*60)*1000;
@@ -350,7 +398,7 @@ function usual(&$out) {
   if ($this->height) {
    $out['HEIGHT']=$this->height;
   } else {
-   $out['HEIGHT']='400';
+   $out['HEIGHT']='300';
   }
 
   if (!preg_match('/px$/', $out['WIDTH']) && !preg_match('/\%$/', $out['WIDTH'])) {
@@ -382,17 +430,32 @@ function usual(&$out) {
    $prop['TYPE']='spline';
    global $period;
    global $property;
-   $tmp=explode('.', $property);
-   $prop['ID']=$property.'.'.$period;
-   $prop['TITLE']=$property;
-   $prop['LINKED_OBJECT']=$tmp[0];
-   $prop['LINKED_PROPERTY']=$tmp[1];
-   $properties=array($prop);
+   global $properties;
+   if (!is_array($properties)) {
+    $properties = array($property);
+   }
+   $res_properties=array();
+   foreach($properties as $property) {
+    $tmp=explode('.', $property);
+    $prop['ID']=$property.'.'.$period;
+    $prop['TITLE']=$property;
+    $prop['LINKED_OBJECT']=$tmp[0];
+    $prop['LINKED_PROPERTY']=$tmp[1];
+    $res_properties[]=$prop;
+   }
+   $properties = $res_properties;
    //print_r($properties);exit;
   }
   $total=count($properties);
 
   $out['FIRST_TYPE']=$properties[0]['TYPE'];
+  $out['FIRST_UNIT']=$properties[0]['UNIT'];
+  if ($out['FIRST_TYPE']=='area_stack') {
+   $out['FIRST_TYPE']='area';
+  }
+  if ($out['FIRST_TYPE']=='spline_min') {
+   $out['FIRST_TYPE']='spline';
+  }
 
   $prop_name=$properties[0]['LINKED_PROPERTY'];
   $unit=$properties[0]['UNIT'];
@@ -405,9 +468,15 @@ function usual(&$out) {
     $unit=$properties[$i]['UNIT'];
     $out['MULTIPLE_AXIS']=1;
    }
+
+   if ($properties[$i]['TYPE']=='area_stack') {
+    $properties[$i]['TYPE']='area';
+    $out['STACK']=1;
+   }
+
    if ($properties[$i]['TYPE']=='spline_min') {
-    $properties[$i]['TYPE']='spline';
-        $properties[$i]['NO_MARKERS']=1;
+     $properties[$i]['TYPE']='spline';
+     $properties[$i]['NO_MARKERS']=1;
    }
   }
   $properties[count($properties)-1]['LAST']=1;
