@@ -395,6 +395,9 @@ function usual(&$out) {
    $out['WIDTH']='100%';
   }
 
+  if ($_GET['height']) {
+   $this->height=$_GET['height'];
+  }
   if ($this->height) {
    $out['HEIGHT']=$this->height;
   } else {
@@ -427,7 +430,7 @@ function usual(&$out) {
    $properties=SQLSelect("SELECT * FROM charts_data WHERE CHART_ID='".$rec['ID']."' ORDER BY PRIORITY DESC, ID");
   } else {
    $prop=array();
-   $prop['TYPE']='spline';
+   $prop['TYPE']='spline_min';
    global $period;
    global $property;
    global $properties;
