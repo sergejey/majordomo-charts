@@ -331,10 +331,12 @@ function usual(&$out) {
 
   }
 
-  $dt=(time()+$diff)*1000;
-  $val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
-  $val=(float)preg_replace('/[^\d\.\-]/', '', $val);
-  $history[]=array($dt, (float)$val);
+  if ($_GET['type']!='column') {
+   $dt=(time()+$diff)*1000;
+   $val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
+   $val=(float)preg_replace('/[^\d\.\-]/', '', $val);
+   $history[]=array($dt, (float)$val);
+  }
 
   if (count($history)==1) {
    $history[]=array($dt-60*1000, (float)$val);
@@ -430,7 +432,11 @@ function usual(&$out) {
    $properties=SQLSelect("SELECT * FROM charts_data WHERE CHART_ID='".$rec['ID']."' ORDER BY PRIORITY DESC, ID");
   } else {
    $prop=array();
-   $prop['TYPE']='spline_min';
+   if ($_GET['chart_type']!='') {
+    $prop['TYPE']=$_GET['chart_type'];
+   } else {
+    $prop['TYPE']='spline_min';
+   }
    global $period;
    global $property;
    global $properties;
