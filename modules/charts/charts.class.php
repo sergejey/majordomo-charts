@@ -218,6 +218,7 @@ function usual(&$out) {
   $id = $this->id;
  }
 
+
  if ($id=='config') {
   $chart=array();
   $chart['ID']='config';
@@ -231,7 +232,7 @@ function usual(&$out) {
   $chart_data['LINKED_OBJECT']=$tmp[0];
   $chart_data['LINKED_PROPERTY']=$tmp[1];
   list($chart['HISTORY_DEPTH'], $chart['HISTORY_TYPE']) = $this->getDepthByType($period);
- } else {
+ } elseif ($id) {
   $chart=SQLSelectOne("SELECT * FROM charts WHERE ID='".(int)$id."'");
   if (!$chart['ID']) {
    $result['ERROR']=1;
@@ -259,8 +260,7 @@ function usual(&$out) {
 
   $prop_id=gr('prop_id');
 
-
-  if (is_integer($chart['ID'])) {
+  if (is_numeric($chart['ID'])) {
    global $multi_data;
    if ($multi_data) {
     $chart_data=SQLSelect("SELECT * FROM charts_data WHERE CHART_ID='".(int)$chart['ID']."'");
@@ -280,6 +280,7 @@ function usual(&$out) {
     $chart_data=SQLSelectOne("SELECT * FROM charts_data WHERE ID='".(int)$prop_id."' AND CHART_ID='".(int)$chart['ID']."'");
    }
   }
+
 
   $obj=getObject($chart_data['LINKED_OBJECT']);
   $prop_id=$obj->getPropertyByName($chart_data['LINKED_PROPERTY'], $obj->class_id, $obj->id);
