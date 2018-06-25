@@ -214,6 +214,8 @@ function usual(&$out) {
 
  if (!$this->id && $id) {
   $this->id=$id;
+ } elseif ($this->id) {
+  $id = $this->id;
  }
 
  if ($id=='config') {
@@ -235,7 +237,7 @@ function usual(&$out) {
    $result['ERROR']=1;
    $result['ERROR_DATA']="Invalid chart id";
    echo json_encode($result);
-   exit;
+   return;
   }
  }
 
