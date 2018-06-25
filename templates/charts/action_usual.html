@@ -37,7 +37,7 @@ var chartUpdateTimer<#ID#>;
 function requestData[#ID#]() {
  //alert('load data!');
  [#begin PROPERTIES#]
-    var url='<#ROOTHTML#>ajax/charts.html?id=<#ID#>&prop_id=[#ID#]';
+    var url='<#ROOTHTML#>ajax/charts.html?id=<#ID#>&prop_id=[#ID#]&type=[#TYPE#]&period=<#PERIOD#>&group=<#GROUP#>&group_type=<#GROUP_TYPE#>';
     $.ajax({
         url: url,
         success: function(data) {
@@ -58,7 +58,7 @@ function requestData[#ID#]() {
 
 function requestMultiData[#ID#]() {
     //alert('load data!');
-    var url='<#ROOTHTML#>ajax/charts.html?id=<#ID#>&multi_data=1';
+    var url='<#ROOTHTML#>ajax/charts.html?id=<#ID#>&multi_data=1&group=<#GROUP#>&group_type=<#GROUP_TYPE#>';
     $.ajax({
         url: url,
         success: function(data) {
@@ -102,7 +102,10 @@ $(function () {
         [#endif#]
                         
         xAxis: {
-            type: 'datetime',
+            [#if GROUP==""#]type: 'datetime',
+                    [#else GROUP#]
+            categories: [<#GROUP_CATEGORIES#>],
+                    [#endif GROUP#]
             dateTimeLabelFormats: { // don't display the dummy year
                 month: '%e. %b',
                 year: '%b'
