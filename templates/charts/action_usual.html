@@ -462,10 +462,12 @@ credits: {
         [#endif HISTORY_DEPTH#]
 
     [#if HIGHCHARTS_SETUP!=""#]
+    var options = {};
     var configFunc = ([#HIGHCHARTS_SETUP#]);
-    config = configFunc(config) || config;
+    config = configFunc(config, options) || config;
     [#endif#]
 
+    Highcharts.setOptions(options);
     chart<#ID#> = new Highcharts.Chart(config);
 });
 
