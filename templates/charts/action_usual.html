@@ -79,11 +79,13 @@ return false;
 
 
 $(function () { 
+    var config = {};
+
     [#if HISTORY_DEPTH!="0"#]
 
     <!--# HISTORY #-->
 
-    chart<#ID#> = new Highcharts.Chart({
+    config = {
         chart: {
             renderTo: 'container_<#ID#>',
             type: '<#FIRST_TYPE#>',
@@ -198,14 +200,14 @@ $(function () {
         [#end PROPERTIES#]
         ]
                 
-    });
+    }
         
         [#else HISTORY_DEPTH#]
 
     <!--# REALTIME #-->
 
     [#if FIRST_TYPE="gauge"#]
-    chart<#ID#> = new Highcharts.Chart({        
+    config = {        
 
         chart: {
             type: '<#FIRST_TYPE#>',
@@ -296,11 +298,11 @@ $(function () {
         ]
 
     }
-        );      
+
         [#endif FIRST_TYPE#]
                 
         [#if FIRST_TYPE="solidgauge"#]
-chart<#ID#> = new Highcharts.Chart({
+    config = {
 
         chart: {
             type: '<#FIRST_TYPE#>',
@@ -400,12 +402,11 @@ credits: {
         ]
 
     }
-        );      
         
          [#endif FIRST_TYPE#]
 
     [#if FIRST_TYPE="pie"#]
-    chart<#ID#> = new Highcharts.Chart({
+    config = {
 
         chart: {
             type: '<#FIRST_TYPE#>',
@@ -455,11 +456,17 @@ credits: {
     ]
 
 }
-    );
 
     [#endif FIRST_TYPE#]
         
         [#endif HISTORY_DEPTH#]
+
+    [#if HIGHCHARTS_SETUP!=""#]
+    var configFunc = ([#HIGHCHARTS_SETUP#]);
+    config = configFunc(config) || config;
+    [#endif#]
+
+    chart<#ID#> = new Highcharts.Chart(config);
 });
 
 

@@ -68,6 +68,18 @@
  </div>
 </div>
 
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_THEME#] style="color:red;font-weight:bold"[#endif#]>
+ Highcharts Setup:
+ </label>
+ <div class="col-lg-4">
+ <a href="#" onClick='$("#highcharts_setup").toggle();return false;'><#LANG_SHOW#></a>
+  <div id='highcharts_setup' style="display:none">
+  <textarea class="form-control" style="height: 320px" name="highcharts_setup" placeholder="config => { ... }">[#HIGHCHARTS_SETUP#]</textarea>
+  </div>
+</div>
+</div>
+
 
 <div class="form-group">
         <div class="col-lg-offset-3 col-lg-4">

@@ -35,6 +35,9 @@
    global $theme;
    $rec['THEME']=$theme.'';
 
+   global $highcharts_setup;
+   $rec['HIGHCHARTS_SETUP']=$highcharts_setup.'';
+
 
   }
   // step: data
