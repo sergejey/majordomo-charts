@@ -710,6 +710,7 @@ charts_data -
  charts: THEME varchar(255) NOT NULL DEFAULT ''
  charts: HISTORY_DEPTH int(10) NOT NULL DEFAULT '0'
  charts: HISTORY_TYPE int(3) NOT NULL DEFAULT '1'
+ charts: HIGHCHARTS_SETUP text
  charts_data: ID int(10) unsigned NOT NULL auto_increment
  charts_data: TITLE varchar(100) NOT NULL DEFAULT ''
  charts_data: VALUE varchar(255) NOT NULL DEFAULT ''
