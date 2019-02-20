@@ -108,6 +108,7 @@
       $old_linked_property=$properties[$i]['LINKED_PROPERTY'];
 
      }
+       $properties[$i]['TITLE']=htmlspecialchars($properties[$i]['TITLE']);
      $properties[$i]['NUM']=$i;
    }
 
@@ -127,7 +128,8 @@
   }
   outHash($rec, $out);
 
-  $path=ROOT.'js/highcharts/themes';
+
+  $path=ROOT.'3rdparty/highcharts/themes';
 
   $files=scandir($path);
   foreach($files as $f) {

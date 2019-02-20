@@ -15,15 +15,15 @@
 [#endif#]
 
 <div id="container_<#ID#>" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
-<script src="<#ROOTHTML#>js/highcharts/highcharts.js"></script>
-<script src="<#ROOTHTML#>js/highcharts/highcharts-more.js"></script>
-<script src="<#ROOTHTML#>js/highcharts/modules/solid-gauge.js"></script>
+<script src="<#ROOTHTML#>3rdparty/highcharts/highcharts.js"></script>
+<script src="<#ROOTHTML#>3rdparty/highcharts/highcharts-more.js"></script>
+<script src="<#ROOTHTML#>3rdparty/highcharts/modules/solid-gauge.js"></script>
 [#if THEME=""#]
 [#if "<#SETTINGS_THEME#>"=="dark"#]
-<script src="<#ROOTHTML#>js/highcharts/themes/dark-unica.js"></script>
+<script src="<#ROOTHTML#>3rdparty/highcharts/themes/dark-unica.js"></script>
 [#endif SETTINGS_THEME#]
 [#else THEME#]
-<script src="<#ROOTHTML#>js/highcharts/themes/[#THEME#].js"></script>
+<script src="<#ROOTHTML#>3rdparty/highcharts/themes/[#THEME#].js"></script>
 [#endif THEME#]
     <style>
         .highcharts-background {
