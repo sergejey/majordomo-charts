@@ -35,6 +35,9 @@
    global $theme;
    $rec['THEME']=$theme.'';
 
+   global $highcharts_setup;
+   $rec['HIGHCHARTS_SETUP']=$highcharts_setup.'';
+
 
   }
   // step: data
@@ -108,7 +111,6 @@
       $old_linked_property=$properties[$i]['LINKED_PROPERTY'];
 
      }
-       $properties[$i]['TITLE']=htmlspecialchars($properties[$i]['TITLE']);
      $properties[$i]['NUM']=$i;
    }
 
@@ -127,7 +129,6 @@
    }
   }
   outHash($rec, $out);
-
 
   $path=ROOT.'3rdparty/highcharts/themes';
 

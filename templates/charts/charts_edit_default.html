@@ -73,10 +73,9 @@
  Highcharts Setup:
  </label>
  <div class="col-lg-4">
- <a id="label_show_setup" href="#" onClick='$("#highcharts_setup").show();$("#label_show_setup").hide();$("#label_hide_setup").show();return false;'><#LANG_SHOW#></a>
- <a id="label_hide_setup" href="#" onClick='$("#highcharts_setup").hide();$("#label_show_setup").show();$("#label_hide_setup").hide();return false;' style="display: none"><#LANG_HIDE#></a>
+ <a href="#" onClick='$("#highcharts_setup").toggle();return false;'><#LANG_SHOW#></a>
   <div id='highcharts_setup' style="display:none">
-  <textarea class="form-control" style="height: 320px" name="highcharts_setup" placeholder="(config, options) => { ... }">[#HIGHCHARTS_SETUP#]</textarea>
+  <textarea class="form-control" style="height: 320px" name="highcharts_setup" placeholder="config => { ... }">[#HIGHCHARTS_SETUP#]</textarea>
   </div>
 </div>
 </div>
