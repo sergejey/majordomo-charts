@@ -461,11 +461,13 @@ credits: {
         
         [#endif HISTORY_DEPTH#]
 
+    var options = {};
     [#if HIGHCHARTS_SETUP!=""#]
     var configFunc = ([#HIGHCHARTS_SETUP#]);
-    config = configFunc(config) || config;
+    config = configFunc(config, options) || config;
     [#endif#]
 
+    Highcharts.setOptions(options);
     chart<#ID#> = new Highcharts.Chart(config);
 });
 
