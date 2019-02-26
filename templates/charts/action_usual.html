@@ -469,6 +469,30 @@ credits: {
 
     Highcharts.setOptions(options);
     chart<#ID#> = new Highcharts.Chart(config);
+
+   /*** add by skysilver ***/
+   [#if VIEW_MODE="edit_charts"#]
+
+      saveConfig(config);
+
+      function saveConfig(json_config) {
+         var url='<#ROOTHTML#>ajax/charts.html?op=saveJSON';
+         var request = {id: <#ID#>, config: json_config};
+         $.ajax({
+            url: url,
+            data: JSON.stringify(request),
+            contentType : 'application/json',
+            type : 'POST',
+            success: function(data) {
+               //
+            },
+            cache: false
+         });
+      }
+
+   [#endif#]
+   /************************/
+
 });
 
 

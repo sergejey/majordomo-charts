@@ -258,6 +258,21 @@ function usual(&$out) {
 
   $result=array();
 
+   /*** add by skysilver ***/
+   $op = gr('op');
+   if ($op == 'saveJSON') {
+      $config = file_get_contents('php://input');
+      if ($config = json_decode($config)) {
+         $chart = SQLSelectOne("SELECT * FROM charts WHERE ID='".(int)$config->id."'");
+         if ($chart['ID']) {
+            $chart['HIGHCHARTS_CONFIG'] = json_encode($config->config);
+            SQLUpdate('charts', $chart);
+         }
+      }
+      exit ('OK');
+   }
+   /************************/
+
   $prop_id=gr('prop_id');
 
   if (is_numeric($chart['ID'])) {
@@ -664,6 +679,109 @@ function getPeriods($start_time,$end_time,$group) {
     }
    }
  }
+
+   /*** add by skysilver ***
+    * Экспорт графика в PNG-изображение, используя API сервиса Highcharts.
+    * Каталог сохранения файлов по умолчанию ./cms/cached/
+    *
+    * @param int     $chart_id      Уникальный идентификатор графика в модуле.
+    * @param int     $chart_height  Высота изображения (пикселей). Опционально.
+    * @param int     $chart_width   Ширина изображения (пикселей). Максимум 2000. Опционально.
+    * @param string  $path          Полный путь к файлу изображения, включая имя файла и расширение. Опционально.
+    * @return string|bool           Возращает относительный путь к файлу или false при ошибках.
+    */
+
+   function getImage($chart_id, $chart_height = 300, $chart_width = 800, $path = false)
+   {
+      $chart = SQLSelectOne("SELECT * FROM charts WHERE ID='" . (int)$chart_id."'");
+
+      if ($chart['ID']) {
+
+         $chart_theme = $chart['THEME'];
+         $chart_config = json_decode($chart['HIGHCHARTS_CONFIG']);
+
+         if ($chart_config != false && $chart_config != '') {
+
+            // Размеры
+            $chart_config->chart->height = $chart_height;
+            $chart_config->chart->width = $chart_width;
+
+            // Исторические данные
+            $properties = SQLSelect("SELECT * FROM charts_data WHERE CHART_ID='" . $chart['ID'] . "' ORDER BY PRIORITY DESC, ID");
+            $total = count($properties);
+            if ($total > 0) {
+               for($i = 0; $i < $total; $i++) {
+                  $data = getURL(BASE_URL . '/ajax/charts.html?id=' . $chart_id . '&prop_id=' . $properties[$i]['ID'], 0);
+                  $data = json_decode($data);
+                  if ($data->RESULT == 'OK' && count($data->HISTORY) > 0) {
+                     $chart_config->series[$i]->data = $data->HISTORY;
+                  }
+               }
+            }
+
+            // Готовый к отправке конфиг графика
+            $chart_config = json_encode($chart_config);
+
+            // Тема/стиль оформления
+            $resources['files'] = "http://code.highcharts.com/themes/{$chart_theme}.js";
+
+            // Русская локализация
+            $options = '{"lang":{"loading":"Загрузка...",
+                        "months":["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
+                        "shortMonths":["Янв","Фев","Март","Апр","Май","Июнь","Июль","Авг","Сент","Окт","Нояб","Дек"],
+                        "weekdays":["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"],
+                        "shortWeekdays":["Вс","Пн","Вт","Ср","Чт","Пт","Сб"],
+                        "exportButtonTitle":"Экспорт","printButtonTitle":"Печать","rangeSelectorFrom":"С","rangeSelectorTo":"По","rangeSelectorZoom":"Период",
+                        "downloadPNG":"Скачать PNG","downloadJPEG":"Скачать JPEG","downloadPDF":"Скачать PDF","downloadSVG":"Скачать SVG",
+                        "printChart":"Напечатать график","resetZoom":"Сбросить зум","resetZoomTitle":"Сбросить зум",
+                        "thousandsSep":" ","decimalPoint":"."}}';
+
+            // Сервис API Highcharts
+            $url = 'http://export.highcharts.com/';
+
+            $ch = curl_init($url);
+
+            $data = array('options' => $chart_config,
+                          'filename' => 'chart',
+                          'type' => 'image/png',
+                          'globalOptions' => $options,
+                          'resources' => json_encode($resources),
+                          'async' => false
+                        );
+
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+            // Отправляем POST-запрос на сервер экспорта Highcharts
+            $result = curl_exec($ch);
+
+            curl_close($ch);
+
+            // Если получили результат, то сохраняем в файл.
+            if (getimagesizefromstring($result) && strlen($result) > 0) {
+
+               $file_name = date('Y-m-d_H-i-s') . '_chart_id' . $chart_id . '.png';
+
+               if ($path === false) {
+                  $file_link = 'cms/cached/' . $file_name;
+                  $path = ROOT . $file_link;
+               } else {
+                  $file_link = str_replace (ROOT, '', $path);
+               }
+
+               SaveFile($path, $result);
+
+               // Возвращаем относительную ссылку на файл
+               return '/' . $file_link;
+            }
+         }
+      }
+      return false;
+   }
+
+
 /**
 * Install
 *
@@ -711,6 +829,7 @@ charts_data -
  charts: HISTORY_DEPTH int(10) NOT NULL DEFAULT '0'
  charts: HISTORY_TYPE int(3) NOT NULL DEFAULT '1'
  charts: HIGHCHARTS_SETUP text
+ charts: HIGHCHARTS_CONFIG text
  charts_data: ID int(10) unsigned NOT NULL auto_increment
  charts_data: TITLE varchar(100) NOT NULL DEFAULT ''
  charts_data: VALUE varchar(255) NOT NULL DEFAULT ''
