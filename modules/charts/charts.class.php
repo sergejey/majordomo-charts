@@ -781,6 +781,176 @@ function getPeriods($start_time,$end_time,$group) {
       return false;
    }
 
+   function getImagefrom_obj($obj, $theme='gray',$type='area', $days=7, $chart_height = 300, $chart_width = 800, $path = false)
+   {
+
+$conf=
+
+'{
+  "chart": {
+    "renderTo": "container_1",
+    "type": "spline",
+    "zoomType": "x",
+    "events": {}
+  },
+  "title": {
+    "text": "'.$obj.'"
+  },
+  "xAxis": {
+    "type": "datetime",
+    "dateTimeLabelFormats": {
+      "month": "%e. %b",
+      "year": "%b"
+    }
+  },
+  "yAxis": [
+    {
+      "labels": {
+        "format": "{value} ",
+        "style": {
+          "color": "#2b908f"
+        }
+      },
+      "title": {
+        "text": "",
+        "style": {
+          "color": "#2b908f"
+        }
+      },
+      "index": 0,
+      "min": 0
+    }
+  ],
+  "plotOptions": {
+    "spline": {
+      "marker": {
+        "enabled": true
+      }
+    },
+    "area": {},
+    "series": {
+      "fillOpacity": 0.25
+    }
+  },
+  "tooltip": {
+    "shared": true
+  },
+  "series": [
+    {
+      "name": "'.$obj.'",
+      "type": "'.$type.'",
+      "tooltip": {
+        "valueSuffix": " "
+      },
+      "yAxis": 0,
+      "data": [],
+      "_colorIndex": 0,
+      "_symbolIndex": 0,
+      "marker": {
+        "enabled": false
+      }
+    }
+  ]}
+  ';
+
+
+
+         $chart_config = json_decode($conf);
+
+ {
+            // Размеры
+            $chart_config->chart->height = $chart_height;
+            $chart_config->chart->width = $chart_width;
+
+            // Исторические данные
+
+if ($days)  {$days=' and UNIX_TIMESTAMP(ADDED)>=UNIX_TIMESTAMP()-'.(86400*$days);}
+
+
+
+$chart_hist='{"RESULT":"OK","HISTORY":[';
+$sql="SELECT  UNIX_TIMESTAMP(ADDED) dt, round(phistory.value,2) value FROM objects, pvalues,phistory where objects.ID=pvalues.OBJECT_ID and pvalues.PROPERTY_NAME='$obj' and phistory.VALUE_ID=pvalues.ID $days   order by added ";
+//echo $sql;
+$res=SQLSelect($sql);
+//print_r($res);
+$count=count($res);
+//echo $count;
+for ($i=0;$i<$count; $i++)
+{
+$chart_hist.='['.$res[$i]['dt'].'000'.','.$res[$i]['value'].'],';
+//echo '['.$res[$i]['dt'].','.$res[$i]['value'].'],<br>';
+}
+$chart_hist = substr($chart_hist, 0, -1).']}';
+
+
+                  $data = json_decode($chart_hist);
+                  if ($data->RESULT == 'OK' && count($data->HISTORY) > 0) {
+                      $chart_config->series[0]->data = $data->HISTORY;
+                  }
+
+            // Готовый к отправке конфиг графика
+            $chart_config = json_encode($chart_config);
+
+            // Тема/стиль оформления
+            $resources['files'] = "http://code.highcharts.com/themes/".$theme.".js";
+
+            // Русская локализация
+            $options = '{"lang":{"loading":"Загрузка...",
+                        "months":["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
+                        "shortMonths":["Янв","Фев","Март","Апр","Май","Июнь","Июль","Авг","Сент","Окт","Нояб","Дек"],
+                        "weekdays":["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"],
+                        "shortWeekdays":["Вс","Пн","Вт","Ср","Чт","Пт","Сб"],
+                        "exportButtonTitle":"Экспорт","printButtonTitle":"Печать","rangeSelectorFrom":"С","rangeSelectorTo":"По","rangeSelectorZoom":"Период",
+                        "downloadPNG":"Скачать PNG","downloadJPEG":"Скачать JPEG","downloadPDF":"Скачать PDF","downloadSVG":"Скачать SVG",
+                        "printChart":"Напечатать график","resetZoom":"Сбросить зум","resetZoomTitle":"Сбросить зум",
+                        "thousandsSep":" ","decimalPoint":"."}}';
+
+            // Сервис API Highcharts
+            $url = 'http://export.highcharts.com/';
+
+            $ch = curl_init($url);
+
+            $data = array('options' => $chart_config,
+                          'filename' => 'chart',
+                          'type' => 'image/png',
+                          'globalOptions' => $options,
+                          'resources' => json_encode($resources),
+                          'async' => false
+                        );
+
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+            // Отправляем POST-запрос на сервер экспорта Highcharts
+            $result = curl_exec($ch);
+
+            curl_close($ch);
+
+            // Если получили результат, то сохраняем в файл.
+            if (getimagesizefromstring($result) && strlen($result) > 0) {
+
+               $file_name = 'ch_'.$obj.'_'.date('Y-m-d_H-i-s').  '.png';
+
+               if ($path === false) {
+                  $file_link = 'cms/cached/' . $file_name;
+                  $path = ROOT . $file_link;
+               } else {
+                  $file_link = str_replace (ROOT, '', $path);
+               }
+
+               SaveFile($path, $result);
+
+               // Возвращаем относительную ссылку на файл
+               return '/' . $file_link;
+            }
+         }
+      
+      return false;
+   }
+
+
 
 /**
 * Install
