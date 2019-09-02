@@ -780,8 +780,8 @@ function getPeriods($start_time,$end_time,$group) {
       }
       return false;
    }
-
-   function getImagefrom_obj($obj, $theme='gray',$type='area', $days=7, $chart_height = 300, $chart_width = 800, $path = false)
+//add directman66
+   function getImageFromObj($obj, $theme='gray',$type='area', $days=7, $chart_height = 300, $chart_width = 800, $path = false)
    {
 
 $conf=
