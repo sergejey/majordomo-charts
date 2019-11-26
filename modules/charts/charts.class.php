@@ -340,6 +340,7 @@ function usual(&$out) {
      $data0=SQLSelectOne("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED<=('".date('Y-m-d H:i:s', $start_time)."') ORDER BY ADDED DESC LIMIT 1");
      if ($data0['ID']) {
       $dt=((int)$start_time+$diff)*1000;
+      $data0['VALUE'] = str_replace(',', '.', $data0['VALUE']);
       $val=(float)preg_replace('/[^\d\.\-]/', '', $data0['VALUE']);
       $history[]=array($dt, $val);
      }
@@ -385,6 +386,7 @@ function usual(&$out) {
      $only_boolean=true;
      for($i=0;$i<$total;$i++) {
       $dt=((int)$data[$i]['UNX']+$diff)*1000;
+      $data[$i]['VALUE'] = str_replace(',', '.', $data[$i]['VALUE']);
       $val=(float)preg_replace('/[^\d\.\-]/', '', $data[$i]['VALUE']);
       if ($val!=0 && $val!=1) {
        $only_boolean=false;
