@@ -314,7 +314,7 @@ function usual(&$out) {
    if ($real_depth==0) {
         $val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
         $val=(float)preg_replace('/[^\d\.\-]/', '', $val);
-        $history[] = round(str_replace(',', '.', $val),2);
+        $history[] = array(str_replace(',', '.', $val));
         // $history[]=array((float)$val);
    } else {
 
