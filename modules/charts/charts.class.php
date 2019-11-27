@@ -465,7 +465,7 @@ function usual(&$out) {
    foreach($properties as $property) {
     $tmp=explode('.', $property);
     $prop['ID']=$property.'.'.$period;
-    $prop['TITLE']=$property;
+    $prop['TITLE']=$_GET['legend'] ? htmlspecialchars($_GET['legend']) : $property;
     $prop['LINKED_OBJECT']=$tmp[0];
     $prop['LINKED_PROPERTY']=$tmp[1];
     $res_properties[]=$prop;
