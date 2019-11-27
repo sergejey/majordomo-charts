@@ -314,7 +314,8 @@ function usual(&$out) {
    if ($real_depth==0) {
         $val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
         $val=(float)preg_replace('/[^\d\.\-]/', '', $val);
-        $history[]=array((float)$val);
+        $history[] = array(str_replace(',', '.', $val));
+        // $history[]=array((float)$val);
    } else {
 
     if ($group!='') {
@@ -333,7 +334,8 @@ function usual(&$out) {
       } else {
        $value=getHistoryAvg($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY'],$start_period_tm,$end_period_tm);
       }
-      $history[]=round((float)$value,2);
+      $history[] = round(str_replace(',', '.', $value),2);
+      // $history[]=round((float)$value,2);
      }
     } else {
 
@@ -397,6 +399,7 @@ function usual(&$out) {
      if ($_GET['type']!='column') {
       $dt=(time()+$diff)*1000;
       $val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
+      $val = str_replace(',', '.', $val);
       $val=(float)preg_replace('/[^\d\.\-]/', '', $val);
       $history[]=array($dt, (float)$val);
      }
