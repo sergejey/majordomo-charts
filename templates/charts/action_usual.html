@@ -13,7 +13,9 @@
 [#if FROM_LIST="1"#]
 <p><a href="?">&lt;&lt;&lt; <#LANG_BACK#></a></p>
 [#endif#]
-
+<div style="padding:10px;position:absolute;z-index:1000">
+    <a href="#" id="btnFullScreen<#ID#>" class="btn btn-default btn-success"><i class="glyphicon glyphicon-fullscreen"></i></a>
+</div>
 <div id="container_<#ID#>" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
 <script src="<#ROOTHTML#>3rdparty/highcharts/highcharts.js"></script>
 <script src="<#ROOTHTML#>3rdparty/highcharts/highcharts-more.js"></script>
@@ -469,6 +471,34 @@ credits: {
 
     Highcharts.setOptions(options);
     chart<#ID#> = new Highcharts.Chart(config);
+
+        let btn[#ID#] = document.getElementById("btnFullScreen[#ID#]");
+        btn[#ID#].addEventListener('click', function() {
+
+        if((window.fullScreen) || (window.innerWidth == screen.width && window.innerHeight == screen.height)) {
+         document.exitFullscreen();
+         return;
+        }
+
+  Highcharts.FullScreen = function(container) {
+    this.init(container.parentNode.parentNode.parentNode); // main div of the chart
+  };
+
+  Highcharts.FullScreen.prototype = {
+    init: function(container) {
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.mozRequestFullScreen) {
+        container.mozRequestFullScreen();
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+      } else if (container.msRequestFullscreen) {
+        container.msRequestFullscreen();
+      }
+    }
+  };
+  chart<#ID#>.fullscreen = new Highcharts.FullScreen(chart<#ID#>.container);
+});
 
    /*** add by skysilver ***/
    [#if VIEW_MODE="edit_charts"#]
