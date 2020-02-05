@@ -475,7 +475,7 @@ credits: {
         let btn[#ID#] = document.getElementById("btnFullScreen[#ID#]");
         btn[#ID#].addEventListener('click', function() {
 
-        if((window.fullScreen) || (window.innerWidth == screen.width && window.innerHeight == screen.height)) {
+        if((window.fullScreen) || (window.innerWidth == screen.width)) {
          document.exitFullscreen();
          return;
         }
