@@ -10,12 +10,15 @@
 [#endif#]
 
 [#if ID!=""#]
+<div id="chart_<#ID#>">
 [#if FROM_LIST="1"#]
 <p><a href="?">&lt;&lt;&lt; <#LANG_BACK#></a></p>
 [#endif#]
+[#if ENABLE_FULLSCREEN="1"#]
 <div style="padding:10px;position:absolute;z-index:1000">
     <a href="#" id="btnFullScreen<#ID#>" class="btn btn-default btn-success"><i class="glyphicon glyphicon-fullscreen"></i></a>
 </div>
+[#endif#]
 <div id="container_<#ID#>" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
 <script src="<#ROOTHTML#>3rdparty/highcharts/highcharts.js"></script>
 <script src="<#ROOTHTML#>3rdparty/highcharts/highcharts-more.js"></script>
@@ -472,16 +475,28 @@ credits: {
     Highcharts.setOptions(options);
     chart<#ID#> = new Highcharts.Chart(config);
 
+    [#if ENABLE_FULLSCREEN="1"#]
+    chart<#ID#>_fullScreenContainer=chart<#ID#>.container.parentNode;
+
         let btn[#ID#] = document.getElementById("btnFullScreen[#ID#]");
         btn[#ID#].addEventListener('click', function() {
 
-        if((window.fullScreen) || (window.innerWidth == screen.width)) {
-         document.exitFullscreen();
+        if((chart<#ID#>_fullScreenContainer.innerWidth == screen.width)) {
+
+           if (chart<#ID#>_fullScreenContainer.exitFullscreen) {
+              chart<#ID#>_fullScreenContainer.exitFullscreen();
+            } else if (chart<#ID#>_fullScreenContainer.mozCancelFullScreen) { /* Firefox */
+               chart<#ID#>_fullScreenContainer.mozCancelFullScreen();
+              } else if (chart<#ID#>_fullScreenContainer.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+                   chart<#ID#>_fullScreenContainer.webkitExitFullscreen();
+              } else if (chart<#ID#>_fullScreenContainer.msExitFullscreen) { /* IE/Edge */
+                chart<#ID#>_fullScreenContainer.msExitFullscreen();
+         }
          return;
         }
 
   Highcharts.FullScreen = function(container) {
-    this.init(container.parentNode.parentNode.parentNode); // main div of the chart
+    this.init(container); // main div of the chart
   };
 
   Highcharts.FullScreen.prototype = {
@@ -497,8 +512,9 @@ credits: {
       }
     }
   };
-  chart<#ID#>.fullscreen = new Highcharts.FullScreen(chart<#ID#>.container);
+  chart<#ID#>.fullscreen = new Highcharts.FullScreen(chart<#ID#>_fullScreenContainer);
 });
+[#endif ENABLE_FULLSCREEN#]
 
    /*** add by skysilver ***/
    [#if VIEW_MODE="edit_charts"#]
@@ -525,7 +541,7 @@ credits: {
 
 });
 
-
 </script>
+</div>
 [#endif ID#]
 

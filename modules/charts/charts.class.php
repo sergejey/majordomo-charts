@@ -218,6 +218,10 @@ function usual(&$out) {
   $id = $this->id;
  }
 
+ if ($_GET['enable_fullscreen']) {
+  $this->enable_fullscreen=1;
+ }
+ $out['ENABLE_FULLSCREEN'] = (int)$this->enable_fullscreen;
 
  if ($id=='config') {
   $chart=array();
