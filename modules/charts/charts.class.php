@@ -250,7 +250,7 @@ function usual(&$out) {
  $history_type=$chart['HISTORY_TYPE'];
  $real_depth=$history_depth*$history_type*60;
 
- $start_time=time()-$real_depth;
+ $start_time=strtotime(date('Y-m-d H:00:00'))-$real_depth;
  $end_time=time();
 
  $tm1=strtotime(date('Y-m-d H:i:s'));
