@@ -250,7 +250,7 @@ function usual(&$out) {
  $history_type=$chart['HISTORY_TYPE'];
  $real_depth=$history_depth*$history_type*60;
 
- $start_time=time()-$real_depth;
+ $start_time=strtotime(date('Y-m-d H:00:00'))-$real_depth;
  $end_time=time();
 
  $tm1=strtotime(date('Y-m-d H:i:s'));
@@ -318,7 +318,7 @@ function usual(&$out) {
    if ($real_depth==0) {
         $val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
         $val=(float)preg_replace('/[^\d\.\-]/', '', $val);
-        $history[] = array(str_replace(',', '.', $val));
+        $history[] = array((float)str_replace(',', '.', $val));
         // $history[]=array((float)$val);
    } else {
 
@@ -338,7 +338,7 @@ function usual(&$out) {
       } else {
        $value=getHistoryAvg($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY'],$start_period_tm,$end_period_tm);
       }
-      $history[] = round(str_replace(',', '.', $value),2);
+      $history[] = round((float)str_replace(',', '.', $value),2);
       // $history[]=round((float)$value,2);
      }
     } else {
@@ -346,7 +346,7 @@ function usual(&$out) {
      $data0=SQLSelectOne("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='".$pvalue['ID']."' AND ADDED<=('".date('Y-m-d H:i:s', $start_time)."') ORDER BY ADDED DESC LIMIT 1");
      if ($data0['ID']) {
       $dt=((int)$start_time+$diff)*1000;
-      $data0['VALUE'] = str_replace(',', '.', $data0['VALUE']);
+      $data0['VALUE'] = (float)str_replace(',', '.', $data0['VALUE']);
       $val=(float)preg_replace('/[^\d\.\-]/', '', $data0['VALUE']);
       $history[]=array($dt, $val);
      }
@@ -392,7 +392,7 @@ function usual(&$out) {
      $only_boolean=true;
      for($i=0;$i<$total;$i++) {
       $dt=((int)$data[$i]['UNX']+$diff)*1000;
-      $data[$i]['VALUE'] = str_replace(',', '.', $data[$i]['VALUE']);
+      $data[$i]['VALUE'] = (float)str_replace(',', '.', $data[$i]['VALUE']);
       $val=(float)preg_replace('/[^\d\.\-]/', '', $data[$i]['VALUE']);
       if ($val!=0 && $val!=1) {
        $only_boolean=false;
@@ -403,7 +403,7 @@ function usual(&$out) {
      if ($_GET['type']!='column') {
       $dt=(time()+$diff)*1000;
       $val=getGlobal($chart_data['LINKED_OBJECT'].'.'.$chart_data['LINKED_PROPERTY']);
-      $val = str_replace(',', '.', $val);
+      $val=(float)str_replace(',', '.', $val);
       $val=(float)preg_replace('/[^\d\.\-]/', '', $val);
       $history[]=array($dt, (float)$val);
      }
