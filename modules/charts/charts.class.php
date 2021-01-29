@@ -826,8 +826,7 @@ $conf=
           "color": "#2b908f"
         }
       },
-      "index": 0,
-      "min": 0
+      "index": 0
     }
   ],
   "plotOptions": {
