@@ -735,9 +735,7 @@ function getPeriods($start_time,$end_time,$group) {
             $resources['files'] = "http://code.highcharts.com/themes/{$chart_theme}.js";
 
             // Русская локализация
-            $timezone = 0-date('Z')/60;
             $options = '{
-                        "time": { "timezoneOffset": "'.$timezone.'", },
                         "lang":{"loading":"Загрузка...",
                         "months":["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
                         "shortMonths":["Янв","Фев","Март","Апр","Май","Июнь","Июль","Авг","Сент","Окт","Нояб","Дек"],
