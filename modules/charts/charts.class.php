@@ -747,7 +747,7 @@ function getPeriods($start_time,$end_time,$group) {
                         "thousandsSep":" ","decimalPoint":"."}}';
 
             // Сервис API Highcharts
-            $url = 'http://export.highcharts.com/';
+            $url = 'https://export.highcharts.com/';
 
             $ch = curl_init($url);
 
@@ -755,7 +755,7 @@ function getPeriods($start_time,$end_time,$group) {
                           'filename' => 'chart',
                           'type' => 'image/png',
                           'globalOptions' => $options,
-                          'resources' => json_encode($resources),
+                          //'resources' => json_encode($resources),
                           'async' => false
                         );
 
@@ -918,7 +918,7 @@ $chart_hist = substr($chart_hist, 0, -1).']}';
                         "thousandsSep":" ","decimalPoint":"."}}';
 
             // Сервис API Highcharts
-            $url = 'http://export.highcharts.com/';
+            $url = 'https://export.highcharts.com/';
 
             $ch = curl_init($url);
 
@@ -926,7 +926,7 @@ $chart_hist = substr($chart_hist, 0, -1).']}';
                           'filename' => 'chart',
                           'type' => 'image/png',
                           'globalOptions' => $options,
-                          'resources' => json_encode($resources),
+                          //'resources' => json_encode($resources),
                           'async' => false
                         );
 
