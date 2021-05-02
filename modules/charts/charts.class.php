@@ -222,6 +222,7 @@ function usual(&$out) {
   $this->enable_fullscreen=1;
  }
  $out['ENABLE_FULLSCREEN'] = (int)$this->enable_fullscreen;
+ $out['UNIQ_ID']='chart_'.rand(0,99999);
 
  if ($id=='config') {
   $chart=array();

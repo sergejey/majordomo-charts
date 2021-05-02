@@ -10,16 +10,16 @@
 [#endif#]
 
 [#if ID!=""#]
-<div id="chart_<#ID#>">
+<div id="chart_<#UNIQ_ID#>">
 [#if FROM_LIST="1"#]
 <p><a href="?">&lt;&lt;&lt; <#LANG_BACK#></a></p>
 [#endif#]
 [#if ENABLE_FULLSCREEN="1"#]
 <div style="padding:10px;position:absolute;z-index:1000">
-    <a href="#" id="btnFullScreen<#ID#>" class="btn btn-default btn-success"><i class="glyphicon glyphicon-fullscreen"></i></a>
+    <a href="#" id="btnFullScreen<#UNIQ_ID#>" class="btn btn-default btn-success"><i class="glyphicon glyphicon-fullscreen"></i></a>
 </div>
 [#endif#]
-<div id="container_<#ID#>" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
+<div id="container_<#UNIQ_ID#>" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
 <script src="<#ROOTHTML#>3rdparty/highcharts/highcharts.js"></script>
 <script src="<#ROOTHTML#>3rdparty/highcharts/highcharts-more.js"></script>
 <script src="<#ROOTHTML#>3rdparty/highcharts/modules/solid-gauge.js"></script>
@@ -37,9 +37,9 @@
     </style>
 <script language="javascript">
 
-var chartUpdateTimer<#ID#>;
+var chartUpdateTimer<#UNIQ_ID#>;
 
-function requestData[#ID#]() {
+function requestData[#UNIQ_ID#]() {
  //alert('load data!');
  [#begin PROPERTIES#]
     var url='<#ROOTHTML#>ajax/charts.html?id=<#ID#>&prop_id=[#ID#]&type=[#TYPE#]&period=<#PERIOD#>&group=<#GROUP#>&group_type=<#GROUP_TYPE#>';
@@ -50,18 +50,18 @@ function requestData[#ID#]() {
          if (obj.RESULT=='OK') {
           var history_count=obj.HISTORY.length;
           if (history_count>0) {
-           chart<#ID#>.series[[#NUM#]].setData(obj.HISTORY);
+           chart<#UNIQ_ID#>.series[[#NUM#]].setData(obj.HISTORY);
           }
          }
         },
         cache: false
     });
  [#end PROPERTIES#]
- chartUpdateTimer<#ID#>=setTimeout('requestData[#ID#]();', <#INTERVAL#>*1000);
+ chartUpdateTimer<#UNIQ_ID#>=setTimeout('requestData[#UNIQ_ID#]();', <#INTERVAL#>*1000);
  return false;
 }
 
-function requestMultiData[#ID#]() {
+function requestMultiData[#UNIQ_ID#]() {
     //alert('load data!');
     var url='<#ROOTHTML#>ajax/charts.html?id=<#ID#>&multi_data=1&group=<#GROUP#>&group_type=<#GROUP_TYPE#>';
     $.ajax({
@@ -71,32 +71,32 @@ function requestMultiData[#ID#]() {
             if (obj.RESULT=='OK') {
                 var history_count=obj.HISTORY.length;
                 if (history_count>0) {
-                    chart<#ID#>.series[0].setData(obj.HISTORY);
+                    chart<#UNIQ_ID#>.series[0].setData(obj.HISTORY);
                 }
             }
         },
         cache: false
     });
-    chartUpdateTimer<#ID#>=setTimeout('requestMultiData[#ID#]();', <#INTERVAL#>*1000);
+    chartUpdateTimer<#UNIQ_ID#>=setTimeout('requestMultiData[#UNIQ_ID#]();', <#INTERVAL#>*1000);
 return false;
 }
  
 
 
 $(function () { 
-    var config = {};
+    var config<#UNIQ_ID#> = {};
 
     [#if HISTORY_DEPTH!="0"#]
 
     <!--# HISTORY #-->
 
-    config = {
+    config<#UNIQ_ID#> = {
         chart: {
-            renderTo: 'container_<#ID#>',
+            renderTo: 'container_<#UNIQ_ID#>',
             type: '<#FIRST_TYPE#>',
             zoomType: 'x',
             events: {
-                load: requestData[#ID#]
+                load: requestData[#UNIQ_ID#]
             }
         },
         title: {
@@ -212,17 +212,17 @@ $(function () {
     <!--# REALTIME #-->
 
     [#if FIRST_TYPE="gauge"#]
-    config = {        
+    config<#UNIQ_ID#> = {
 
         chart: {
             type: '<#FIRST_TYPE#>',
-            renderTo: 'container_<#ID#>',                       
+            renderTo: 'container_<#UNIQ_ID#>',
             plotBackgroundColor: null,
             plotBackgroundImage: null,
             plotBorderWidth: 0,
             plotShadow: false,
             events: {
-                load: requestData[#ID#]
+                load: requestData[#UNIQ_ID#]
             }                   
         },
         title: {
@@ -307,13 +307,13 @@ $(function () {
         [#endif FIRST_TYPE#]
                 
         [#if FIRST_TYPE="solidgauge"#]
-    config = {
+    config<#UNIQ_ID#> = {
 
         chart: {
             type: '<#FIRST_TYPE#>',
-            renderTo: 'container_<#ID#>',                       
+            renderTo: 'container_<#UNIQ_ID#>',
             events: {
-                load: requestData[#ID#]
+                load: requestData[#UNIQ_ID#]
             }                   
         },
         title: {
@@ -411,13 +411,13 @@ credits: {
          [#endif FIRST_TYPE#]
 
     [#if FIRST_TYPE="pie"#]
-    config = {
+    config<#UNIQ_ID#> = {
 
         chart: {
             type: '<#FIRST_TYPE#>',
-            renderTo: 'container_<#ID#>',
+            renderTo: 'container_<#UNIQ_ID#>',
             events: {
-                load: requestMultiData[#ID#]
+                load: requestMultiData[#UNIQ_ID#]
 }
 },
     title: {
@@ -466,31 +466,31 @@ credits: {
         
         [#endif HISTORY_DEPTH#]
 
-    var options = {};
+    var options<#UNIQ_ID#> = {};
     [#if HIGHCHARTS_SETUP!=""#]
-    var configFunc = ([#HIGHCHARTS_SETUP#]);
-    config = configFunc(config, options) || config;
+    var configFunc<#UNIQ_ID#> = ([#HIGHCHARTS_SETUP#]);
+    config<#UNIQ_ID#> = configFunc<#UNIQ_ID#>(config<#UNIQ_ID#>, options<#UNIQ_ID#>) || config<#UNIQ_ID#>;
     [#endif#]
 
-    Highcharts.setOptions(options);
-    chart<#ID#> = new Highcharts.Chart(config);
+    Highcharts.setOptions(options<#UNIQ_ID#>);
+    chart<#UNIQ_ID#> = new Highcharts.Chart(config<#UNIQ_ID#>);
 
     [#if ENABLE_FULLSCREEN="1"#]
-    chart<#ID#>_fullScreenContainer=chart<#ID#>.container.parentNode;
+    chart<#UNIQ_ID#>_fullScreenContainer=chart<#UNIQ_ID#>.container.parentNode;
 
-        let btn[#ID#] = document.getElementById("btnFullScreen[#ID#]");
-        btn[#ID#].addEventListener('click', function() {
+        let btn[#UNIQ_ID#] = document.getElementById("btnFullScreen[#UNIQ_ID#]");
+        btn[#UNIQ_ID#].addEventListener('click', function() {
 
-        if((chart<#ID#>_fullScreenContainer.innerWidth == screen.width)) {
+        if((chart<#UNIQ_ID#>_fullScreenContainer.innerWidth == screen.width)) {
 
-           if (chart<#ID#>_fullScreenContainer.exitFullscreen) {
-              chart<#ID#>_fullScreenContainer.exitFullscreen();
-            } else if (chart<#ID#>_fullScreenContainer.mozCancelFullScreen) { /* Firefox */
-               chart<#ID#>_fullScreenContainer.mozCancelFullScreen();
-              } else if (chart<#ID#>_fullScreenContainer.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-                   chart<#ID#>_fullScreenContainer.webkitExitFullscreen();
-              } else if (chart<#ID#>_fullScreenContainer.msExitFullscreen) { /* IE/Edge */
-                chart<#ID#>_fullScreenContainer.msExitFullscreen();
+           if (chart<#UNIQ_ID#>_fullScreenContainer.exitFullscreen) {
+              chart<#UNIQ_ID#>_fullScreenContainer.exitFullscreen();
+            } else if (chart<#UNIQ_ID#>_fullScreenContainer.mozCancelFullScreen) { /* Firefox */
+               chart<#UNIQ_ID#>_fullScreenContainer.mozCancelFullScreen();
+              } else if (chart<#UNIQ_ID#>_fullScreenContainer.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+                   chart<#UNIQ_ID#>_fullScreenContainer.webkitExitFullscreen();
+              } else if (chart<#UNIQ_ID#>_fullScreenContainer.msExitFullscreen) { /* IE/Edge */
+                chart<#UNIQ_ID#>_fullScreenContainer.msExitFullscreen();
          }
          return;
         }
@@ -512,7 +512,7 @@ credits: {
       }
     }
   };
-  chart<#ID#>.fullscreen = new Highcharts.FullScreen(chart<#ID#>_fullScreenContainer);
+  chart<#UNIQ_ID#>.fullscreen = new Highcharts.FullScreen(chart<#UNIQ_ID#>_fullScreenContainer);
 });
 [#endif ENABLE_FULLSCREEN#]
 
