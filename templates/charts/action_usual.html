@@ -119,6 +119,8 @@ $(function () {
             }
         },
 
+
+
          [#if MULTIPLE_AXIS="1"#]
                 yAxis: [
                 [#begin PROPERTIES#]
@@ -183,7 +185,7 @@ $(function () {
             shared: true
         },
 
-                
+
         series: [
         [#begin PROPERTIES#]
         {
@@ -519,7 +521,7 @@ credits: {
    /*** add by skysilver ***/
    [#if VIEW_MODE="edit_charts"#]
 
-      saveConfig(config);
+      saveConfig(config<#UNIQ_ID#>);
 
       function saveConfig(json_config) {
          var url='<#ROOTHTML#>ajax/charts.html?op=saveJSON';
