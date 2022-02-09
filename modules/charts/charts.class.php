@@ -312,149 +312,150 @@ class charts extends module
                 } else {
                     $chart_data = SQLSelectOne("SELECT * FROM charts_data WHERE ID='" . (int)$prop_id . "' AND CHART_ID='" . (int)$chart['ID'] . "'");
                 }
-            }
 
-
-            $obj = getObject($chart_data['LINKED_OBJECT']);
-            $prop_id = $obj->getPropertyByName($chart_data['LINKED_PROPERTY'], $obj->class_id, $obj->id);
-
-            $pvalue = SQLSelectOne("SELECT * FROM pvalues WHERE PROPERTY_ID='" . $prop_id . "' AND OBJECT_ID='" . $obj->id . "'");
-            $history = array();
-            $result['RESULT'] = 'OK';
-            if ($pvalue['ID']) {
-
-                if (defined('SEPARATE_HISTORY_STORAGE') && SEPARATE_HISTORY_STORAGE == 1) {
-                    $history_table = createHistoryTable($pvalue['ID']);
-                } else {
-                    $history_table = 'phistory';
-                }
-
-                if ($real_depth == 0) {
-                    $val = getGlobal($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY']);
-                    $val = (float)preg_replace('/[^\d\.\-]/', '', $val);
-                    $history[] = array((float)str_replace(',', '.', $val));
-                    // $history[]=array((float)$val);
-                } else {
-
-                    if ($group != '') {
+                if ($chart_data['LINKED_OBJECT']) {
+                    $obj = getObject($chart_data['LINKED_OBJECT']);
+                    if (is_object($obj)) {
+                        $prop_id = $obj->getPropertyByName($chart_data['LINKED_PROPERTY'], $obj->class_id, $obj->id);
+                        $pvalue = SQLSelectOne("SELECT * FROM pvalues WHERE PROPERTY_ID='" . $prop_id . "' AND OBJECT_ID='" . $obj->id . "'");
                         $history = array();
-                        $periods = $this->getPeriods($start_time, $end_time, $group);
-                        $total = count($periods);
-                        for ($i = 0; $i < $total; $i++) {
-                            $rec = array();
-                            $rec[0] = $periods[$i]['TITLE'];
-                            $start_period_tm = $periods[$i]['START'];
-                            $end_period_tm = $periods[$i]['END'];
-                            if ($group_type == 'max') {
-                                $value = getHistoryMax($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY'], $start_period_tm, $end_period_tm);
-                            } elseif ($group_type == 'min') {
-                                $value = getHistoryMin($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY'], $start_period_tm, $end_period_tm);
-                            } else {
-                                $value = getHistoryAvg($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY'], $start_period_tm, $end_period_tm);
-                            }
-                            $history[] = round((float)str_replace(',', '.', $value), 2);
-                            // $history[]=round((float)$value,2);
-                        }
-                    } else {
+                        if ($pvalue['ID']) {
 
-                        $data0 = SQLSelectOne("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='" . $pvalue['ID'] . "' AND ADDED<=('" . date('Y-m-d H:i:s', $start_time) . "') ORDER BY ADDED DESC LIMIT 1");
-                        if ($data0['ID']) {
-                            $dt = ((int)$start_time + $diff) * 1000;
-                            $data0['VALUE'] = (float)str_replace(',', '.', $data0['VALUE']);
-                            $val = (float)preg_replace('/[^\d\.\-]/', '', $data0['VALUE']);
-                            $history[] = array($dt, $val);
-                        }
-
-                        if ($chart_data['TYPE'] == 'area_stack') {
-                            $pre_data = SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='" . $pvalue['ID'] . "' AND ADDED>=('" . date('Y-m-d H:i:s', $start_time) . "') AND ADDED<=('" . date('Y-m-d H:i:s', $end_time) . "') ORDER BY ADDED");
-                            if ($history_type >= 1440) {
-                                //day average
-                                $range = 24 * 60 * 60;
-                            } elseif ($history_type >= 60) {
-                                //hour average
-                                $range = 60 * 60;
+                            if (defined('SEPARATE_HISTORY_STORAGE') && SEPARATE_HISTORY_STORAGE == 1) {
+                                $history_table = createHistoryTable($pvalue['ID']);
                             } else {
-                                //every minute
-                                $range = 5 * 60;
+                                $history_table = 'phistory';
                             }
 
-                            $start_time = round($start_time / $range) * $range;
-                            $current_time = $start_time;
-                            $avg_array = array();
-                            $data = array();
-                            $total = count($pre_data);
-                            $avg = 0;
-                            for ($i = 0; $i < $total; $i++) {
-                                $data_time = $pre_data[$i]['UNX'];
-                                if ($data_time >= $current_time) {
-                                    $avg_count = count($avg_array);
-                                    if ($avg_count > 0) {
-                                        $avg = round(array_sum($avg_array) / count($avg_array), 2);
+                            if ($real_depth == 0) {
+                                $val = getGlobal($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY']);
+                                $val = (float)preg_replace('/[^\d\.\-]/', '', $val);
+                                $history[] = array((float)str_replace(',', '.', $val));
+                                // $history[]=array((float)$val);
+                            } else {
+
+                                if ($group != '') {
+                                    $history = array();
+                                    $periods = $this->getPeriods($start_time, $end_time, $group);
+                                    $total = count($periods);
+                                    for ($i = 0; $i < $total; $i++) {
+                                        $rec = array();
+                                        $rec[0] = $periods[$i]['TITLE'];
+                                        $start_period_tm = $periods[$i]['START'];
+                                        $end_period_tm = $periods[$i]['END'];
+                                        if ($group_type == 'max') {
+                                            $value = getHistoryMax($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY'], $start_period_tm, $end_period_tm);
+                                        } elseif ($group_type == 'min') {
+                                            $value = getHistoryMin($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY'], $start_period_tm, $end_period_tm);
+                                        } else {
+                                            $value = getHistoryAvg($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY'], $start_period_tm, $end_period_tm);
+                                        }
+                                        $history[] = round((float)str_replace(',', '.', $value), 2);
+                                        // $history[]=round((float)$value,2);
                                     }
-                                    //echo date('Y-m-d H:i:s',$current_time)." - ".date('H:i:s',$current_time+$range).": ";echo str_repeat(' ',5*1024);flush();flush();
-                                    //echo $avg."<br/> ";echo str_repeat(' ',5*1024);flush();flush();
-                                    $data[] = array('UNX' => $current_time, 'VALUE' => $avg);
-                                    $current_time += $range;
-                                    $avg_array = array();
                                 } else {
-                                    $avg_array[] = $pre_data[$i]['VALUE'];
-                                }
-                            }
 
-                        } else {
-                            $data = SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='" . $pvalue['ID'] . "' AND ADDED>=('" . date('Y-m-d H:i:s', $start_time) . "') AND ADDED<=('" . date('Y-m-d H:i:s', $end_time) . "') ORDER BY ADDED");
-                        }
-
-                        $total = count($data);
-                        $only_boolean = true;
-                        for ($i = 0; $i < $total; $i++) {
-                            $dt = ((int)$data[$i]['UNX'] + $diff) * 1000;
-                            $data[$i]['VALUE'] = (float)str_replace(',', '.', $data[$i]['VALUE']);
-                            $val = (float)preg_replace('/[^\d\.\-]/', '', $data[$i]['VALUE']);
-                            if ($val != 0 && $val != 1) {
-                                $only_boolean = false;
-                            }
-                            $history[] = array($dt, $val);
-                        }
-
-                        if ($_GET['type'] != 'column') {
-                            $dt = (time() + $diff) * 1000;
-                            $val = getGlobal($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY']);
-                            $val = (float)str_replace(',', '.', $val);
-                            $val = (float)preg_replace('/[^\d\.\-]/', '', $val);
-                            $history[] = array($dt, (float)$val);
-                        }
-
-                        if (count($history) == 1) {
-                            $history[] = array($dt - 60 * 1000, (float)$val);
-                        } else {
-                            if ($only_boolean) {
-                                $new_history = array();
-                                $total = count($history);
-                                for ($i = 0; $i < $total; $i++) {
-                                    $new_history[] = $history[$i];
-                                    if (isset($history[$i + 1])) {
-                                        $new_rec = $history[$i + 1];
-                                        $new_rec[0] = $new_rec[0] - 1;
-                                        $new_rec[1] = $history[$i][1];
-                                        $new_history[] = $new_rec;
+                                    $data0 = SQLSelectOne("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='" . $pvalue['ID'] . "' AND ADDED<=('" . date('Y-m-d H:i:s', $start_time) . "') ORDER BY ADDED DESC LIMIT 1");
+                                    if ($data0['ID']) {
+                                        $dt = ((int)$start_time + $diff) * 1000;
+                                        $data0['VALUE'] = (float)str_replace(',', '.', $data0['VALUE']);
+                                        $val = (float)preg_replace('/[^\d\.\-]/', '', $data0['VALUE']);
+                                        $history[] = array($dt, $val);
                                     }
+
+                                    if ($chart_data['TYPE'] == 'area_stack') {
+                                        $pre_data = SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='" . $pvalue['ID'] . "' AND ADDED>=('" . date('Y-m-d H:i:s', $start_time) . "') AND ADDED<=('" . date('Y-m-d H:i:s', $end_time) . "') ORDER BY ADDED");
+                                        if ($history_type >= 1440) {
+                                            //day average
+                                            $range = 24 * 60 * 60;
+                                        } elseif ($history_type >= 60) {
+                                            //hour average
+                                            $range = 60 * 60;
+                                        } else {
+                                            //every minute
+                                            $range = 5 * 60;
+                                        }
+
+                                        $start_time = round($start_time / $range) * $range;
+                                        $current_time = $start_time;
+                                        $avg_array = array();
+                                        $data = array();
+                                        $total = count($pre_data);
+                                        $avg = 0;
+                                        for ($i = 0; $i < $total; $i++) {
+                                            $data_time = $pre_data[$i]['UNX'];
+                                            if ($data_time >= $current_time) {
+                                                $avg_count = count($avg_array);
+                                                if ($avg_count > 0) {
+                                                    $avg = round(array_sum($avg_array) / count($avg_array), 2);
+                                                }
+                                                //echo date('Y-m-d H:i:s',$current_time)." - ".date('H:i:s',$current_time+$range).": ";echo str_repeat(' ',5*1024);flush();flush();
+                                                //echo $avg."<br/> ";echo str_repeat(' ',5*1024);flush();flush();
+                                                $data[] = array('UNX' => $current_time, 'VALUE' => $avg);
+                                                $current_time += $range;
+                                                $avg_array = array();
+                                            } else {
+                                                $avg_array[] = $pre_data[$i]['VALUE'];
+                                            }
+                                        }
+
+                                    } else {
+                                        $data = SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='" . $pvalue['ID'] . "' AND ADDED>=('" . date('Y-m-d H:i:s', $start_time) . "') AND ADDED<=('" . date('Y-m-d H:i:s', $end_time) . "') ORDER BY ADDED");
+                                    }
+
+                                    $total = count($data);
+                                    $only_boolean = true;
+                                    for ($i = 0; $i < $total; $i++) {
+                                        $dt = ((int)$data[$i]['UNX'] + $diff) * 1000;
+                                        $data[$i]['VALUE'] = (float)str_replace(',', '.', $data[$i]['VALUE']);
+                                        $val = (float)preg_replace('/[^\d\.\-]/', '', $data[$i]['VALUE']);
+                                        if ($val != 0 && $val != 1) {
+                                            $only_boolean = false;
+                                        }
+                                        $history[] = array($dt, $val);
+                                    }
+
+                                    if ($_GET['type'] != 'column') {
+                                        $dt = (time() + $diff) * 1000;
+                                        $val = getGlobal($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY']);
+                                        $val = (float)str_replace(',', '.', $val);
+                                        $val = (float)preg_replace('/[^\d\.\-]/', '', $val);
+                                        $history[] = array($dt, (float)$val);
+                                    }
+
+                                    if (count($history) == 1) {
+                                        $history[] = array($dt - 60 * 1000, (float)$val);
+                                    } else {
+                                        if ($only_boolean) {
+                                            $new_history = array();
+                                            $total = count($history);
+                                            for ($i = 0; $i < $total; $i++) {
+                                                $new_history[] = $history[$i];
+                                                if (isset($history[$i + 1])) {
+                                                    $new_rec = $history[$i + 1];
+                                                    $new_rec[0] = $new_rec[0] - 1;
+                                                    $new_rec[1] = $history[$i][1];
+                                                    $new_history[] = $new_rec;
+                                                }
+                                            }
+                                            $history = $new_history;
+                                            unset($new_history);
+                                        }
+                                    }
+
                                 }
-                                $history = $new_history;
-                                unset($new_history);
+
+
                             }
+
+
                         }
-
                     }
-
-
+                    $result['HISTORY'] = $history;
                 }
 
-
             }
-
-
-            $result['HISTORY'] = $history;
+            $result['RESULT'] = 'OK';
             echo json_encode($result);
             exit;
         }
