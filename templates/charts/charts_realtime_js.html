@@ -1,0 +1,267 @@
+<!--# REALTIME #-->
+[#if FIRST_TYPE="gauge"#]
+config<#UNIQ_ID#> = {
+chart: {
+ type: '<#FIRST_TYPE#>',
+ renderTo: 'container_<#UNIQ_ID#>',
+ plotBackgroundColor: null,
+ plotBackgroundImage: null,
+ plotBorderWidth: 0,
+ plotShadow: false,
+ events: {
+  load: requestData[#UNIQ_ID#]
+ }
+},
+accessibility: {
+ enabled: false
+},
+
+title: {
+ text: '[#TITLE#]'
+},
+
+[#if SUBTITLE!=""#]
+subtitle: {
+ text: '<#SUBTITLE#>'
+},
+[#endif#]
+
+pane: {
+ startAngle: -150,
+ endAngle: 150,
+ background: [{
+  backgroundColor: {
+   linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+   stops: [
+    [0, '#FFF'],
+    [1, '#333']
+   ]
+  },
+  borderWidth: 0,
+  outerRadius: '109%'
+  },
+  {
+   backgroundColor: {
+   linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+   stops: [
+    [0, '#333'],
+    [1, '#FFF']
+   ]
+   },
+   borderWidth: 1,
+   outerRadius: '107%'
+  },
+  {
+   // default background
+  },
+  {
+   backgroundColor: '#DDD',
+   borderWidth: 0,
+   outerRadius: '105%',
+   innerRadius: '103%'
+  }
+  ]
+ },
+
+yAxis: [
+[#begin PROPERTIES#]
+{
+[#if SETTINGS!=""#][#SETTINGS#],[#endif#]
+labels: {
+format: '{value} [#UNIT#]',
+style: {
+color: Highcharts.getOptions().colors[[#NUM#]]
+},
+rotation: 'auto'
+},
+title: {
+text: '[#TITLE#]',
+style: {
+color: Highcharts.getOptions().colors[[#NUM#]]
+}
+}
+
+[#if OPPOSITE="1"#], opposite: true[#endif#]
+}[#if LAST!="1"#], [#endif#]
+[#end PROPERTIES#]
+],
+series: [
+[#begin PROPERTIES#]
+{
+name: '[#TITLE#]',
+type: '[#TYPE#]',
+tooltip: {
+valueSuffix: ' [#UNIT#]'
+},
+yAxis: [#NUM#],
+data: []
+}[#if LAST!="1"#], [#endif#]
+[#end PROPERTIES#]
+]
+
+}
+[#endif FIRST_TYPE#]
+
+[#if FIRST_TYPE="solidgauge"#]
+config<#UNIQ_ID#> = {
+
+chart: {
+type: '<#FIRST_TYPE#>',
+renderTo: 'container_<#UNIQ_ID#>',
+events: {
+load: requestData[#UNIQ_ID#]
+}
+},
+
+accessibility: {
+enabled: false
+},
+
+title: {
+text: '[#TITLE#]'
+},
+[#if SUBTITLE!=""#]
+subtitle: {
+text: '<#SUBTITLE#>'
+},
+[#endif#]
+
+credits: {
+enabled: false
+},
+
+plotOptions: {
+solidgauge: {
+dataLabels: {
+y: 5,
+borderWidth: 0,
+useHTML: true
+}
+}
+},
+
+pane: {
+center: ['50%', '85%'],
+size: '100%',
+startAngle: -90,
+endAngle: 90,
+background: {
+backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#EEE',
+innerRadius: '60%',
+outerRadius: '100%',
+shape: 'arc'
+}
+},
+
+tooltip: {
+enabled: false
+},
+
+yAxis: [
+[#begin PROPERTIES#]
+{
+minorTickInterval: null,
+tickPixelInterval: 400,
+tickWidth: 0,
+[#if SETTINGS!=""#][#SETTINGS#],[#endif#]
+labels: {
+format: '{value} [#UNIT#]',
+y: 16,
+style: {
+color: Highcharts.getOptions().colors[[#NUM#]]
+}
+},
+title: {
+y: -90,
+text: '[#TITLE#]',
+style: {
+color: Highcharts.getOptions().colors[[#NUM#]]
+}
+},
+credits: {
+enabled: false
+}
+
+[#if OPPOSITE="1"#], opposite: true[#endif#]
+}[#if LAST!="1"#], [#endif#]
+[#end PROPERTIES#]
+],
+series: [
+[#begin PROPERTIES#]
+{
+name: '[#TITLE#]',
+type: '[#TYPE#]',
+dataLabels: {
+format: '<div style="text-align:center"><span style="font-size:25px;color:' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+    '<span style="font-size:12px;color:silver">[#UNIT#]</span></div>',
+
+},
+tooltip: {
+valueSuffix: ' [#UNIT#]'
+},
+
+yAxis: [#NUM#],
+data: []
+}[#if LAST!="1"#], [#endif#]
+[#end PROPERTIES#]
+]
+
+}
+
+[#endif FIRST_TYPE#]
+
+[#if FIRST_TYPE="pie"#]
+config[#UNIQ_ID#] = {
+
+chart: {
+type: '<#FIRST_TYPE#>',
+renderTo: 'container_[#UNIQ_ID#]',
+events: {
+load: requestMultiData[#UNIQ_ID#]
+}
+},
+
+accessibility: {
+enabled: false
+},
+
+title: {
+text: '[#TITLE#]'
+},
+[#if SUBTITLE!=""#]
+subtitle: {
+text: '<#SUBTITLE#>'
+},
+[#endif#]
+
+credits: {
+enabled: false
+},
+
+tooltip: {
+pointFormat: '<b>{point.percentage:.1f}%</b>'
+},
+
+plotOptions: {
+pie: {
+allowPointSelect: true,
+cursor: 'pointer',
+dataLabels: {
+enabled: false
+},
+showInLegend: true,
+
+}
+},
+series: [
+{
+name: '[#TITLE#]',
+tooltip: {
+valueSuffix: ' [#UNIT#]'
+},
+data: []
+}
+]
+}
+[#endif FIRST_TYPE#]

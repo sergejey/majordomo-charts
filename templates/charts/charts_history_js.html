@@ -1,0 +1,129 @@
+config[#UNIQ_ID#] = {
+
+chart: {
+  renderTo: 'container_[#UNIQ_ID#]',
+  type: '[#FIRST_TYPE#]',
+  zoomType: 'x',
+  events: {
+   load: requestData[#UNIQ_ID#]
+  }
+ },
+
+ accessibility: {
+  enabled: false
+ },
+
+ title: {
+  text: '[#TITLE#]'
+ },
+
+ [#if SUBTITLE!=""#]
+  subtitle: {
+   text: '[#SUBTITLE#]'
+  },
+ [#endif#]
+
+ xAxis: {
+  [#if GROUP==""#]type: 'datetime',[#else GROUP#]categories: [<#GROUP_CATEGORIES#>],[#endif GROUP#]
+  dateTimeLabelFormats: { // don't display the dummy year
+   month: '%e. %b',
+   year: '%b'
+  },
+  crosshair: true,
+  events: {
+   setExtremes: syncExtremes
+  },
+ },
+
+[#if MULTIPLE_AXIS="1"#]
+ yAxis: [
+  [#begin PROPERTIES#]
+  {
+   labels: {
+    format: '{value} [#UNIT#]',
+    style: {
+     color: Highcharts.getOptions().colors[[#NUM#]]
+    }
+   },
+   title: {
+    text: '[#TITLE#]',
+    style: {
+     color: Highcharts.getOptions().colors[[#NUM#]]
+    }
+   },
+   [#if SETTINGS!=""#][#SETTINGS#],[#endif#]
+   [#if OPPOSITE="1"#]opposite: true,[#endif#]
+  }
+  [#if LAST!="1"#], [#endif#]
+  [#end PROPERTIES#]
+  ],
+
+[#else MULTIPLE_AXIS#]
+
+ yAxis: [
+ [#begin PROPERTIES#]
+  {
+   labels: {
+    format: '{value} [#UNIT#]',
+    style: {
+     color: Highcharts.getOptions().colors[[#NUM#]]
+    }
+   },
+   title: {
+    text: '',
+    style: {
+    color: Highcharts.getOptions().colors[[#NUM#]]
+   }
+  },
+  [#if SETTINGS!=""#][#SETTINGS#],[#endif#]
+  [#if OPPOSITE="1"#]opposite: true,[#endif#]
+ }
+ [#if LAST!="1"#], [#endif#]
+ [#end PROPERTIES#]
+ ],
+
+[#endif MULTIPLE_AXIS#]
+
+plotOptions: {
+ spline: {
+  marker: {
+   enabled: true
+  }
+ },
+ area: {
+  [#if "<#STACK#>"!=""#]stacking: 'normal',[#endif#]
+ },
+ series: {
+  fillOpacity: 0.25
+ },
+},
+
+tooltip: {
+ shared: true,
+ style: {
+  fontSize: '18px'
+ },
+ shadow: false,
+pointFormat: '<span style="color:{series.color}">{point.y}</span>',
+ borderWidth: 0,
+},
+
+series: [
+ [#begin PROPERTIES#]
+  {
+   name: '[#TITLE#]',
+   type: '[#TYPE#]',
+   tooltip: {
+   valueSuffix: ' [#UNIT#]',
+  },
+  [#if NO_MARKERS="1"#]
+   marker: {
+    enabled: false
+   },
+  [#endif#]
+  [#if "<#MULTIPLE_AXIS#>"=="1"#]yAxis: [#NUM#],[#endif#]
+  data: []
+ }[#if LAST!="1"#], [#endif#]
+ [#end PROPERTIES#]
+]
+};

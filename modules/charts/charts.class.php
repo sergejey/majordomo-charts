@@ -487,14 +487,24 @@ class charts extends module
                 if (!is_array($properties)) {
                     $properties = array($property);
                 }
+                if (count($properties)>1) {
+                    $out['MULTIPLE_CHARTS']=1;
+                }
                 $res_properties = array();
+                $legend = gr('legend');
+                $i=0;
                 foreach ($properties as $property) {
                     $tmp = explode('.', $property);
                     $prop['ID'] = $property . '.' . $period;
-                    $prop['TITLE'] = $_GET['legend'] ? htmlspecialchars($_GET['legend']) : $property;
+                    if (is_array($legend)) {
+                        $prop['TITLE'] = $legend[$i] ? htmlspecialchars($legend[$i]) : $property;
+                    } else {
+                        $prop['TITLE'] = $legend ? htmlspecialchars($legend) : $property;
+                    }
                     $prop['LINKED_OBJECT'] = $tmp[0];
                     $prop['LINKED_PROPERTY'] = $tmp[1];
                     $res_properties[] = $prop;
+                    $i++;
                 }
                 $properties = $res_properties;
             } else {
@@ -517,66 +527,66 @@ class charts extends module
 
 
             if ($this->width) {
-                $out['WIDTH'] = $this->width;
+                $chart['WIDTH'] = $this->width;
             } else {
-                $out['WIDTH'] = '100%';
+                $chart['WIDTH'] = '100%';
             }
 
             if ($_GET['height']) {
                 $this->height = $_GET['height'];
             }
             if ($this->height) {
-                $out['HEIGHT'] = $this->height;
+                $chart['HEIGHT'] = $this->height;
             } else {
-                $out['HEIGHT'] = '300';
+                $chart['HEIGHT'] = '300';
             }
 
-            if (!preg_match('/px$/', $out['WIDTH']) && !preg_match('/\%$/', $out['WIDTH'])) {
-                $out['HEIGHT'] .= 'px';
+            if (!preg_match('/px$/', $chart['WIDTH']) && !preg_match('/\%$/', $chart['WIDTH'])) {
+                $chart['HEIGHT'] .= 'px';
             }
 
-            if (!preg_match('/px$/', $out['HEIGHT']) && !preg_match('/\%$/', $out['HEIGHT'])) {
-                $out['HEIGHT'] .= 'px';
+            if (!preg_match('/px$/', $chart['HEIGHT']) && !preg_match('/\%$/', $chart['HEIGHT'])) {
+                $chart['HEIGHT'] .= 'px';
             }
 
             if ($this->interval) {
-                $out['INTERVAL'] = (int)$this->interval;
-                if (!$out['INTERVAL']) {
-                    $out['INTERVAL'] = 15 * 60;
+                $chart['INTERVAL'] = (int)$this->interval;
+                if (!$chart['INTERVAL']) {
+                    $chart['INTERVAL'] = 15 * 60;
                 }
             } else {
                 if ($chart['HISTORY_DEPTH'] > 0) {
-                    $out['INTERVAL'] = 15 * 60;
+                    $chart['INTERVAL'] = 15 * 60;
                 } else {
-                    $out['INTERVAL'] = 2;
+                    $chart['INTERVAL'] = 2;
                 }
             }
 
             $total = count($properties);
-            $out['FIRST_TYPE'] = $properties[0]['TYPE'];
-            $out['FIRST_UNIT'] = $properties[0]['UNIT'];
-            if ($out['FIRST_TYPE'] == 'area_stack') {
-                $out['FIRST_TYPE'] = 'area';
+            $chart['FIRST_TYPE'] = $properties[0]['TYPE'];
+            $chart['FIRST_UNIT'] = $properties[0]['UNIT'];
+            if ($chart['FIRST_TYPE'] == 'area_stack') {
+                $chart['FIRST_TYPE'] = 'area';
             }
-            if ($out['FIRST_TYPE'] == 'spline_min') {
-                $out['FIRST_TYPE'] = 'spline';
+            if ($chart['FIRST_TYPE'] == 'spline_min') {
+                $chart['FIRST_TYPE'] = 'spline';
             }
 
             $prop_name = $properties[0]['LINKED_PROPERTY'];
             $unit = $properties[0]['UNIT'];
-            $out['FIRST_UNIT'] = $unit;
+            $chart['FIRST_UNIT'] = $unit;
 
             for ($i = 0; $i < $total; $i++) {
                 $properties[$i]['NUM'] = $i;
                 if (($properties[$i]['UNIT'] != $unit || $unit == '')) {
                     $prop_name = $properties[$i]['LINKED_PROPERTY'];
                     $unit = $properties[$i]['UNIT'];
-                    $out['MULTIPLE_AXIS'] = 1;
+                    $chart['MULTIPLE_AXIS'] = 1;
                 }
 
                 if ($properties[$i]['TYPE'] == 'area_stack') {
                     $properties[$i]['TYPE'] = 'area';
-                    $out['STACK'] = 1;
+                    $chart['STACK'] = 1;
                 }
 
                 if ($properties[$i]['TYPE'] == 'spline_min') {
@@ -586,12 +596,34 @@ class charts extends module
             }
             $properties[count($properties) - 1]['LAST'] = 1;
 
-            if ($total == 2 && $out['MULTIPLE_AXIS']) {
+            if ($total == 2 && $chart['MULTIPLE_AXIS']) {
                 $properties[count($properties) - 1]['OPPOSITE'] = 1;
             }
 
             outHash($chart, $out);
-            $out['PROPERTIES'] = $properties;
+
+            if ($out['MULTIPLE_CHARTS']) {
+                $total = count($properties);
+                $charts=array();
+                for($i=0;$i<$total;$i++) {
+                    $new_chart = $chart;
+                    $properties[$i]['NUM']=0;
+                    $properties[$i]['LAST']=1;
+                    $properties[$i]['OPPOSITE']=0;
+                    $new_chart['PROPERTIES']=array($properties[$i]);
+                    $new_chart['UNIQ_ID'] = 'chart_' . rand(0, 99999);
+                    $new_chart['HEIGHT']='200px';
+                    unset($new_chart['MULTIPLE_AXIS']);
+                    $charts[]=$new_chart;
+                }
+            } else {
+                $chart['PROPERTIES'] = $properties;
+                $chart['UNIQ_ID'] = 'chart_' . rand(0, 99999);
+                $charts=array($chart);
+            }
+
+            $out['CHARTS']=$charts;
+
         } else {
             $charts = SQLSelect("SELECT * FROM charts ORDER BY TITLE");
             $out['CHARTS'] = $charts;

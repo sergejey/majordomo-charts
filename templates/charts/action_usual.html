@@ -10,16 +10,6 @@
 [#endif#]
 
 [#if ID!=""#]
-<div id="chart_<#UNIQ_ID#>">
-[#if FROM_LIST="1"#]
-<p><a href="?">&lt;&lt;&lt; <#LANG_BACK#></a></p>
-[#endif#]
-[#if ENABLE_FULLSCREEN="1"#]
-<div style="padding:10px;position:absolute;z-index:1000">
-    <a href="#" id="btnFullScreen<#UNIQ_ID#>" class="btn btn-default btn-success"><i class="glyphicon glyphicon-fullscreen"></i></a>
-</div>
-[#endif#]
-<div id="container_<#UNIQ_ID#>" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
 <script src="<#ROOTHTML#>3rdparty/highcharts/highcharts.js"></script>
 <script src="<#ROOTHTML#>3rdparty/highcharts/highcharts-more.js"></script>
 <script src="<#ROOTHTML#>3rdparty/highcharts/modules/solid-gauge.js"></script>
@@ -30,15 +20,88 @@
 [#else THEME#]
 <script src="<#ROOTHTML#>3rdparty/highcharts/themes/[#THEME#].js"></script>
 [#endif THEME#]
-    <style>
-        .highcharts-background {
-            fill: rgba(0, 0, 0, 0);
+<style>
+    .highcharts-background {
+        fill: rgba(0, 0, 0, 0);
+    }
+</style>
+
+<script type="text/javascript">
+    function syncExtremes(e) {
+        var thisChart = this.chart;
+        if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
+            Highcharts.each(Highcharts.charts, function (chart) {
+                if (chart !== thisChart) {
+                    if (chart.xAxis[0].setExtremes) { // It is null while updating
+                        chart.xAxis[0].setExtremes(
+                            e.min,
+                            e.max,
+                            undefined,
+                            false,
+                            { trigger: 'syncExtremes' }
+                        );
+                    }
+                }
+            });
         }
-    </style>
+    }
+</script>
+
+[#if VIEW_MODE="edit_charts"#]
+<script type="text/javascript">
+    function saveConfig(json_config, chart_id) {
+        var url='<#ROOTHTML#>ajax/charts.html?op=saveJSON';
+        var request = {id: chart_id, config: json_config};
+        $.ajax({
+            url: url,
+            data: JSON.stringify(request),
+            contentType : 'application/json',
+            type : 'POST',
+            success: function(data) {
+                //
+            },
+            cache: false
+        });
+    }
+</script>
+[#endif VIEW_MODE#]
+
+[#if ENABLE_FULLSCREEN="1"#]
+<script type="text/javascript">
+    Highcharts.FullScreen = function(container) {
+        this.init(container); // main div of the chart
+    };
+
+    Highcharts.FullScreen.prototype = {
+        init: function(container) {
+            if (container.requestFullscreen) {
+                container.requestFullscreen();
+            } else if (container.mozRequestFullScreen) {
+                container.mozRequestFullScreen();
+            } else if (container.webkitRequestFullscreen) {
+                container.webkitRequestFullscreen();
+            } else if (container.msRequestFullscreen) {
+                container.msRequestFullscreen();
+            }
+        }
+    };
+</script>
+[#endif#]
+
+[#if FROM_LIST="1"#]
+<p><a href="?">&lt;&lt;&lt; <#LANG_BACK#></a></p>
+[#endif#]
+
+<div id="chartsContainer">[#begin CHARTS#]
+<div id="chart_[#UNIQ_ID#]">
+[#if "<#ENABLE_FULLSCREEN#>"=="1"#]
+<div style="padding-top:5px;padding-left:30px;position:absolute;z-index:1000">
+    <a href="#" id="btnFullScreen[#UNIQ_ID#]" class="btn btn-default btn-success"><i class="glyphicon glyphicon-fullscreen"></i></a>
+</div>
+[#endif#]
+<div id="container_[#UNIQ_ID#]" style="width:[#WIDTH#]; height:[#HEIGHT#];"></div>
 <script language="javascript">
-
-var chartUpdateTimer<#UNIQ_ID#>;
-
+var chartUpdateTimer[#UNIQ_ID#];
 function requestData[#UNIQ_ID#]() {
  //alert('load data!');
  [#begin PROPERTIES#]
@@ -50,14 +113,14 @@ function requestData[#UNIQ_ID#]() {
          if (obj.RESULT=='OK') {
           var history_count=obj.HISTORY.length;
           if (history_count>0) {
-           chart<#UNIQ_ID#>.series[[#NUM#]].setData(obj.HISTORY);
+           chart<#CHARTS.UNIQ_ID#>.series[[#NUM#]].setData(obj.HISTORY);
           }
          }
         },
         cache: false
     });
  [#end PROPERTIES#]
- chartUpdateTimer<#UNIQ_ID#>=setTimeout('requestData[#UNIQ_ID#]();', <#INTERVAL#>*1000);
+ chartUpdateTimer[#UNIQ_ID#]=setTimeout('requestData[#UNIQ_ID#]();', <#INTERVAL#>*1000);
  return false;
 }
 
@@ -71,7 +134,7 @@ function requestMultiData[#UNIQ_ID#]() {
             if (obj.RESULT=='OK') {
                 var history_count=obj.HISTORY.length;
                 if (history_count>0) {
-                    chart<#UNIQ_ID#>.series[0].setData(obj.HISTORY);
+                    chart[#UNIQ_ID#].series[0].setData(obj.HISTORY);
                 }
             }
         },
@@ -81,469 +144,94 @@ function requestMultiData[#UNIQ_ID#]() {
 return false;
 }
  
-
-
-$(function () { 
-    var config<#UNIQ_ID#> = {};
+$(function () {
+    var config[#UNIQ_ID#] = {};
 
     [#if HISTORY_DEPTH!="0"#]
-
-    <!--# HISTORY #-->
-
-    config<#UNIQ_ID#> = {
-        chart: {
-            renderTo: 'container_<#UNIQ_ID#>',
-            type: '<#FIRST_TYPE#>',
-            zoomType: 'x',
-            events: {
-                load: requestData[#UNIQ_ID#]
-            }
-        },
-        title: {
-            text: '<#TITLE#>'
-        },
-        [#if SUBTITLE!=""#]
-        subtitle: {
-            text: '<#SUBTITLE#>'
-        },
-        [#endif#]
-                        
-        xAxis: {
-            [#if GROUP==""#]type: 'datetime',
-                    [#else GROUP#]
-            categories: [<#GROUP_CATEGORIES#>],
-                    [#endif GROUP#]
-            dateTimeLabelFormats: { // don't display the dummy year
-                month: '%e. %b',
-                year: '%b'
-            }
-        },
+     [#inc charts_history_js.html#]
+    [#else HISTORY_DEPTH#]
+     [#inc charts_realtime_js.html#]
+    [#endif HISTORY_DEPTH#]
 
 
-
-         [#if MULTIPLE_AXIS="1"#]
-                yAxis: [
-                [#begin PROPERTIES#]
-                { 
-            labels: {
-                format: '{value} [#UNIT#]',
-                style: {
-                    color: Highcharts.getOptions().colors[[#NUM#]]
-                }
-            },
-            title: {
-                text: '[#TITLE#]',
-                style: {
-                    color: Highcharts.getOptions().colors[[#NUM#]]
-                }
-            }
-            [#if SETTINGS!=""#],[#SETTINGS#][#endif#]
-            [#if OPPOSITE="1"#], opposite: true[#endif#]
-        }[#if LAST!="1"#], [#endif#]
-                [#end PROPERTIES#]
-                ],              
-        [#else MULTIPLE_AXIS#]
-                yAxis: [
-                [#begin PROPERTIES#]
-                { 
-            labels: {
-                format: '{value} [#UNIT#]',
-                style: {
-                    color: Highcharts.getOptions().colors[[#NUM#]]
-                }
-            },
-            title: {
-                text: '',
-                style: {
-                    color: Highcharts.getOptions().colors[[#NUM#]]
-                }
-            }
-            [#if SETTINGS!=""#],[#SETTINGS#][#endif#]
-            [#if OPPOSITE="1"#], opposite: true[#endif#]
-        }[#if LAST!="1"#], [#endif#]
-                [#end PROPERTIES#]
-                ],              
-        [#else MULTIPLE_AXIS#]
-        [#endif MULTIPLE_AXIS#] 
-                
-
-        plotOptions: {
-            spline: {
-                marker: {
-                    enabled: true
-                }
-            },
-
-            area: {
-                [#if "<#STACK#>"!=""#]stacking: 'normal',[#endif#]
-            },
-            series: {
-                fillOpacity: 0.25
-            },
-        },
-        tooltip: {
-            shared: true
-        },
-
-
-        series: [
-        [#begin PROPERTIES#]
-        {
-            name: '[#TITLE#]',
-            type: '[#TYPE#]',
-                        tooltip: {
-                valueSuffix: ' [#UNIT#]'
-            },
-                        [#if NO_MARKERS="1"#]
-                        marker: {
-                                enabled: false
-                        },                      
-                        [#endif#]
-              [#if "<#MULTIPLE_AXIS#>"=="1"#]
-              yAxis: [#NUM#],
-              [#endif#]
-            data: []
-        }[#if LAST!="1"#], [#endif#]
-        [#end PROPERTIES#]
-        ]
-                
-    }
-        
-        [#else HISTORY_DEPTH#]
-
-    <!--# REALTIME #-->
-
-    [#if FIRST_TYPE="gauge"#]
-    config<#UNIQ_ID#> = {
-
-        chart: {
-            type: '<#FIRST_TYPE#>',
-            renderTo: 'container_<#UNIQ_ID#>',
-            plotBackgroundColor: null,
-            plotBackgroundImage: null,
-            plotBorderWidth: 0,
-            plotShadow: false,
-            events: {
-                load: requestData[#UNIQ_ID#]
-            }                   
-        },
-        title: {
-            text: '[#TITLE#]'
-        },
-        [#if SUBTITLE!=""#]
-        subtitle: {
-            text: '<#SUBTITLE#>'
-        },
-        [#endif#]               
-        pane: {
-            startAngle: -150,
-            endAngle: 150,
-            background: [{
-                backgroundColor: {
-                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                    stops: [
-                        [0, '#FFF'],
-                        [1, '#333']
-                    ]
-                },
-                borderWidth: 0,
-                outerRadius: '109%'
-            }, {
-                backgroundColor: {
-                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                    stops: [
-                        [0, '#333'],
-                        [1, '#FFF']
-                    ]
-                },
-                borderWidth: 1,
-                outerRadius: '107%'
-            }, {
-                // default background
-            }, {
-                backgroundColor: '#DDD',
-                borderWidth: 0,
-                outerRadius: '105%',
-                innerRadius: '103%'
-            }]
-        },
-
-                yAxis: [
-                [#begin PROPERTIES#]
-                { 
-                        [#if SETTINGS!=""#][#SETTINGS#],[#endif#]
-            labels: {
-                format: '{value} [#UNIT#]',
-                style: {
-                    color: Highcharts.getOptions().colors[[#NUM#]]
-                },
-                rotation: 'auto'                                
-            },
-            title: {
-                text: '[#TITLE#]',
-                style: {
-                    color: Highcharts.getOptions().colors[[#NUM#]]
-                }
-            }
-
-            [#if OPPOSITE="1"#], opposite: true[#endif#]
-        }[#if LAST!="1"#], [#endif#]
-                [#end PROPERTIES#]
-                ],              
-        series: [
-        [#begin PROPERTIES#]
-        {
-            name: '[#TITLE#]',
-            type: '[#TYPE#]',
-                        tooltip: {
-                valueSuffix: ' [#UNIT#]'
-            },
-              yAxis: [#NUM#],
-            data: []
-        }[#if LAST!="1"#], [#endif#]
-        [#end PROPERTIES#]
-        ]
-
-    }
-
-        [#endif FIRST_TYPE#]
-                
-        [#if FIRST_TYPE="solidgauge"#]
-    config<#UNIQ_ID#> = {
-
-        chart: {
-            type: '<#FIRST_TYPE#>',
-            renderTo: 'container_<#UNIQ_ID#>',
-            events: {
-                load: requestData[#UNIQ_ID#]
-            }                   
-        },
-        title: {
-            text: '[#TITLE#]'
-        },
-        [#if SUBTITLE!=""#]
-        subtitle: {
-            text: '<#SUBTITLE#>'
-        },
-        [#endif#]               
-
-        credits: {
-            enabled: false
-        },      
-
-        plotOptions: {
-            solidgauge: {
-                dataLabels: {
-                    y: 5,
-                    borderWidth: 0,
-                    useHTML: true
-                }
-            }
-        },
-                
-        pane: {
-            center: ['50%', '85%'],
-            size: '100%',
-            startAngle: -90,
-            endAngle: 90,
-            background: {
-                backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#EEE',
-                innerRadius: '60%',
-                outerRadius: '100%',
-                shape: 'arc'
-            }
-        },
-
-        tooltip: {
-            enabled: false
-        },              
-                
-                yAxis: [
-                [#begin PROPERTIES#]
-                { 
-            minorTickInterval: null,
-            tickPixelInterval: 400,
-            tickWidth: 0,
-            [#if SETTINGS!=""#][#SETTINGS#],[#endif#]
-            labels: {
-                format: '{value} [#UNIT#]',
-                                y: 16,
-                style: {
-                    color: Highcharts.getOptions().colors[[#NUM#]]
-                }                                
-            },
-            title: {
-                                y: -90,
-                text: '[#TITLE#]',
-                style: {
-                    color: Highcharts.getOptions().colors[[#NUM#]]
-                }
-            },
-credits: {
-            enabled: false
-        }
-
-            [#if OPPOSITE="1"#], opposite: true[#endif#]
-        }[#if LAST!="1"#], [#endif#]
-                [#end PROPERTIES#]
-                ],              
-        series: [
-        [#begin PROPERTIES#]
-        {
-            name: '[#TITLE#]',
-            type: '[#TYPE#]',
-            dataLabels: {
-                format: '<div style="text-align:center"><span style="font-size:25px;color:' +
-                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
-                       '<span style="font-size:12px;color:silver">[#UNIT#]</span></div>',
-
-            },
-            tooltip: {
-                valueSuffix: ' [#UNIT#]'
-            },
-                        
-              yAxis: [#NUM#],
-            data: []
-        }[#if LAST!="1"#], [#endif#]
-        [#end PROPERTIES#]
-        ]
-
-    }
-        
-         [#endif FIRST_TYPE#]
-
-    [#if FIRST_TYPE="pie"#]
-    config<#UNIQ_ID#> = {
-
-        chart: {
-            type: '<#FIRST_TYPE#>',
-            renderTo: 'container_<#UNIQ_ID#>',
-            events: {
-                load: requestMultiData[#UNIQ_ID#]
-}
-},
-    title: {
-        text: '[#TITLE#]'
-    },
-    [#if SUBTITLE!=""#]
-    subtitle: {
-        text: '<#SUBTITLE#>'
-    },
-    [#endif#]
-
-    credits: {
-        enabled: false
-    },
-
-    tooltip: {
-        pointFormat: '<b>{point.percentage:.1f}%</b>'
-    },
-
-    plotOptions: {
-        pie: {
-            allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                enabled: false
-            },
-            showInLegend: true,
-
-        }
-    },
-
-
-    series: [
-    {
-        name: '[#TITLE#]',
-        tooltip: {
-            valueSuffix: ' [#UNIT#]'
-        },
-        data: []
-    }
-    ]
-
-}
-
-    [#endif FIRST_TYPE#]
-        
-        [#endif HISTORY_DEPTH#]
-
-    var options<#UNIQ_ID#> = {};
+    var options[#UNIQ_ID#] = {};
     [#if HIGHCHARTS_SETUP!=""#]
-    var configFunc<#UNIQ_ID#> = ([#HIGHCHARTS_SETUP#]);
-    config<#UNIQ_ID#> = configFunc<#UNIQ_ID#>(config<#UNIQ_ID#>, options<#UNIQ_ID#>) || config<#UNIQ_ID#>;
+    var configFunc[#UNIQ_ID#] = ([#HIGHCHARTS_SETUP#]);
+    config[#UNIQ_ID#] = configFunc[#UNIQ_ID#](config[#UNIQ_ID#], options[#UNIQ_ID#]) || config[#UNIQ_ID#];
     [#endif#]
 
-    Highcharts.setOptions(options<#UNIQ_ID#>);
-    chart<#UNIQ_ID#> = new Highcharts.Chart(config<#UNIQ_ID#>);
+    Highcharts.setOptions(options[#UNIQ_ID#]);
+    chart[#UNIQ_ID#] = new Highcharts.Chart(config[#UNIQ_ID#]);
 
-    [#if ENABLE_FULLSCREEN="1"#]
-    chart<#UNIQ_ID#>_fullScreenContainer=chart<#UNIQ_ID#>.container.parentNode;
+
+    [#if "<#ENABLE_FULLSCREEN#>"=="1"#]
+    chart[#UNIQ_ID#]_fullScreenContainer=chart[#UNIQ_ID#].container.parentNode;
 
         let btn[#UNIQ_ID#] = document.getElementById("btnFullScreen[#UNIQ_ID#]");
         btn[#UNIQ_ID#].addEventListener('click', function() {
 
-        if((chart<#UNIQ_ID#>_fullScreenContainer.innerWidth == screen.width)) {
+        if((chart[#UNIQ_ID#]_fullScreenContainer.innerWidth == screen.width)) {
 
-           if (chart<#UNIQ_ID#>_fullScreenContainer.exitFullscreen) {
-              chart<#UNIQ_ID#>_fullScreenContainer.exitFullscreen();
-            } else if (chart<#UNIQ_ID#>_fullScreenContainer.mozCancelFullScreen) { /* Firefox */
-               chart<#UNIQ_ID#>_fullScreenContainer.mozCancelFullScreen();
-              } else if (chart<#UNIQ_ID#>_fullScreenContainer.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-                   chart<#UNIQ_ID#>_fullScreenContainer.webkitExitFullscreen();
-              } else if (chart<#UNIQ_ID#>_fullScreenContainer.msExitFullscreen) { /* IE/Edge */
-                chart<#UNIQ_ID#>_fullScreenContainer.msExitFullscreen();
+           if (chart[#UNIQ_ID#]_fullScreenContainer.exitFullscreen) {
+              chart[#UNIQ_ID#]_fullScreenContainer.exitFullscreen();
+            } else if (chart[#UNIQ_ID#]_fullScreenContainer.mozCancelFullScreen) { /* Firefox */
+               chart[#UNIQ_ID#]_fullScreenContainer.mozCancelFullScreen();
+              } else if (chart[#UNIQ_ID#]_fullScreenContainer.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+                   chart[#UNIQ_ID#]_fullScreenContainer.webkitExitFullscreen();
+              } else if (chart[#UNIQ_ID#]_fullScreenContainer.msExitFullscreen) { /* IE/Edge */
+                chart[#UNIQ_ID#]_fullScreenContainer.msExitFullscreen();
          }
          return;
         }
 
-  Highcharts.FullScreen = function(container) {
-    this.init(container); // main div of the chart
-  };
-
-  Highcharts.FullScreen.prototype = {
-    init: function(container) {
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if (container.mozRequestFullScreen) {
-        container.mozRequestFullScreen();
-      } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-      } else if (container.msRequestFullscreen) {
-        container.msRequestFullscreen();
-      }
-    }
-  };
-  chart<#UNIQ_ID#>.fullscreen = new Highcharts.FullScreen(chart<#UNIQ_ID#>_fullScreenContainer);
+  chart[#UNIQ_ID#].fullscreen = new Highcharts.FullScreen(chart[#UNIQ_ID#]_fullScreenContainer);
 });
 [#endif ENABLE_FULLSCREEN#]
 
-   /*** add by skysilver ***/
-   [#if VIEW_MODE="edit_charts"#]
 
-      saveConfig(config<#UNIQ_ID#>);
-
-      function saveConfig(json_config) {
-         var url='<#ROOTHTML#>ajax/charts.html?op=saveJSON';
-         var request = {id: <#ID#>, config: json_config};
-         $.ajax({
-            url: url,
-            data: JSON.stringify(request),
-            contentType : 'application/json',
-            type : 'POST',
-            success: function(data) {
-               //
-            },
-            cache: false
-         });
-      }
-
+   [#if "<#VIEW_MODE#>"=="edit_charts"#]
+      saveConfig(config[#UNIQ_ID#], [#ID#]);
    [#endif#]
-   /************************/
-
 });
+</script>
+</div>[#end CHARTS#]</div>
+[#if MULTIPLE_CHARTS="1"#]
+<script type="text/javascript">
+    ['mousemove', 'touchmove', 'touchstart'].forEach(function (eventType) {
+        document.getElementById('chartsContainer').addEventListener(
+            eventType,
+            function (e) {
+                var chart,
+                    point,
+                    i,
+                    event;
+
+                for (i = 0; i < Highcharts.charts.length; i = i + 1) {
+                    chart = Highcharts.charts[i];
+                    // Find coordinates within the chart
+                    event = chart.pointer.normalize(e);
+                    // Get the hovered point
+                    point = chart.series[0].searchPoint(event, true);
+
+                    if (point) {
+                        point.highlight(e);
+                    }
+                }
+            }
+        );
+    });
+
+    Highcharts.Pointer.prototype.reset = function () {
+        return undefined;
+    };
+
+    Highcharts.Point.prototype.highlight = function (event) {
+        event = this.series.chart.pointer.normalize(event);
+        this.onMouseOver(); // Show the hover marker
+        this.series.chart.tooltip.refresh(this); // Show the tooltip
+        this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
+    };
 
 </script>
-</div>
+[#endif#]
 [#endif ID#]
-
