@@ -538,7 +538,7 @@ class charts extends module
             if ($this->height) {
                 $chart['HEIGHT'] = $this->height;
             } else {
-                $chart['HEIGHT'] = '300';
+                $chart['HEIGHT'] = '100%';
             }
 
             if (!preg_match('/px$/', $chart['WIDTH']) && !preg_match('/\%$/', $chart['WIDTH'])) {
@@ -607,12 +607,15 @@ class charts extends module
                 $charts=array();
                 for($i=0;$i<$total;$i++) {
                     $new_chart = $chart;
+                    if ($new_chart['HEIGHT']=='100%') {
+                        $new_chart['HEIGHT']=(round(100/$total)-5).'%';
+                    }
                     $properties[$i]['NUM']=0;
                     $properties[$i]['LAST']=1;
                     $properties[$i]['OPPOSITE']=0;
                     $new_chart['PROPERTIES']=array($properties[$i]);
                     $new_chart['UNIQ_ID'] = 'chart_' . rand(0, 99999);
-                    $new_chart['HEIGHT']='200px';
+                    //$new_chart['HEIGHT']='200px';
                     unset($new_chart['MULTIPLE_AXIS']);
                     $charts[]=$new_chart;
                 }
