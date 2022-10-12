@@ -599,6 +599,8 @@ class charts extends module
             if ($total == 2 && $chart['MULTIPLE_AXIS']) {
                 $properties[count($properties) - 1]['OPPOSITE'] = 1;
             }
+            if (isset($out['GROUP'])) $chart['GROUP'] = $out['GROUP'];
+            if (isset($out['GROUP_CATEGORIES'])) $chart['GROUP_CATEGORIES'] = $out['GROUP_CATEGORIES'];
 
             outHash($chart, $out);
 
