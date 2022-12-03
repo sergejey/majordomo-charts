@@ -168,24 +168,24 @@ $(function () {
     chart[#UNIQ_ID#]_fullScreenContainer=chart[#UNIQ_ID#].container.parentNode;
 
         let btn[#UNIQ_ID#] = document.getElementById("btnFullScreen[#UNIQ_ID#]");
-        btn[#UNIQ_ID#].addEventListener('click', function() {
-
-        if((chart[#UNIQ_ID#]_fullScreenContainer.innerWidth == screen.width)) {
-
-           if (chart[#UNIQ_ID#]_fullScreenContainer.exitFullscreen) {
-              chart[#UNIQ_ID#]_fullScreenContainer.exitFullscreen();
-            } else if (chart[#UNIQ_ID#]_fullScreenContainer.mozCancelFullScreen) { /* Firefox */
+        if (btn[#UNIQ_ID#] !== null) {
+          btn[#UNIQ_ID#].addEventListener('click', function() {
+             if((chart[#UNIQ_ID#]_fullScreenContainer.innerWidth == screen.width)) {
+              if (chart[#UNIQ_ID#]_fullScreenContainer.exitFullscreen) {
+               chart[#UNIQ_ID#]_fullScreenContainer.exitFullscreen();
+              } else if (chart[#UNIQ_ID#]_fullScreenContainer.mozCancelFullScreen) { /* Firefox */
                chart[#UNIQ_ID#]_fullScreenContainer.mozCancelFullScreen();
               } else if (chart[#UNIQ_ID#]_fullScreenContainer.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-                   chart[#UNIQ_ID#]_fullScreenContainer.webkitExitFullscreen();
+               chart[#UNIQ_ID#]_fullScreenContainer.webkitExitFullscreen();
               } else if (chart[#UNIQ_ID#]_fullScreenContainer.msExitFullscreen) { /* IE/Edge */
-                chart[#UNIQ_ID#]_fullScreenContainer.msExitFullscreen();
-         }
-         return;
-        }
+               chart[#UNIQ_ID#]_fullScreenContainer.msExitFullscreen();
+              }
+             return;
+            }
+            chart[#UNIQ_ID#].fullscreen = new Highcharts.FullScreen(chart[#UNIQ_ID#]_fullScreenContainer);
+        });
+ }
 
-  chart[#UNIQ_ID#].fullscreen = new Highcharts.FullScreen(chart[#UNIQ_ID#]_fullScreenContainer);
-});
 [#endif ENABLE_FULLSCREEN#]
 
 
