@@ -105,7 +105,7 @@ var chartUpdateTimer[#UNIQ_ID#];
 function requestData[#UNIQ_ID#]() {
  //alert('load data!');
  [#begin PROPERTIES#]
-    var url='<#ROOTHTML#>ajax/charts.html?id=<#ID#>&prop_id=[#ID#]&type=[#TYPE#]&period=<#PERIOD#>&group=<#GROUP#>&group_type=<#GROUP_TYPE#>';
+    var url='<#ROOTHTML#>ajax/charts.html?id=<#ID#>&prop_id=[#ID#]&type=[#TYPE#]&period=<#PERIOD#>&end=<#END_ENCODED#>&group=<#GROUP#>&group_type=<#GROUP_TYPE#>';
     $.ajax({
         url: url,
         success: function(data) {

@@ -212,6 +212,10 @@ class charts extends module
         $period = gr('period');
         $out['PERIOD'] = $period;
 
+        $end = gr('end');
+        $out['END'] = $end;
+        $out['END_ENCODED'] = urlencode($end);
+
         $group = gr('group');
         $out['GROUP'] = $group;
 
@@ -264,8 +268,12 @@ class charts extends module
         $history_type = $chart['HISTORY_TYPE'];
         $real_depth = $history_depth * $history_type * 60;
 
-        $start_time = strtotime(date('Y-m-d H:00:00')) - $real_depth;
-        $end_time = time();
+        if (preg_match('/(\d+)\/(\d+)\/(\d+)/', $end, $m)) {
+            $end_time = mktime(23, 59, 59, $m[2], $m[3], $m[1]);
+        } else {
+            $end_time = time();
+        }
+        $start_time = strtotime(date('Y-m-d H:00:00', $end_time)) - $real_depth;
 
         $tm1 = strtotime(date('Y-m-d H:i:s'));
         $tm2 = strtotime(gmdate('Y-m-d H:i:s'));
@@ -417,7 +425,7 @@ class charts extends module
                                     $history[] = array($dt, $val);
                                 }
 
-                                if ($_GET['type'] != 'column') {
+                                if ($_GET['type'] != 'column' && !$end) {
                                     $dt = (time() + $diff) * 1000;
                                     $val = getGlobal($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY']);
                                     $val = (float)str_replace(',', '.', $val);
