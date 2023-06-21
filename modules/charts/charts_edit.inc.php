@@ -123,7 +123,7 @@
   }
   if (is_array($rec)) {
    foreach($rec as $k=>$v) {
-    if (!is_array($v)) {
+    if ($v && !is_array($v)) {
      $rec[$k]=htmlspecialchars($v);
     }
    }

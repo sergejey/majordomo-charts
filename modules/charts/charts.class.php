@@ -17,7 +17,7 @@ class charts extends module
      *
      * @access private
      */
-    function charts()
+    function __construct()
     {
         $this->name = "charts";
         $this->title = "Charts";
@@ -130,9 +130,10 @@ class charts extends module
      */
     function admin(&$out)
     {
-        if (isset($this->data_source) && !$_GET['data_source'] && !$_POST['data_source']) {
+        if (isset($this->data_source) && !gr('data_source')) {
             $out['SET_DATASOURCE'] = 1;
         }
+
         if ($this->data_source == 'charts' || $this->data_source == '') {
             if ($this->view_mode == '' || $this->view_mode == 'search_charts') {
                 $this->search_charts($out);
@@ -165,7 +166,7 @@ class charts extends module
             $this->redirect("?id=" . $rec['ID'] . "&view_mode=edit_charts");
         }
 
-        if (isset($this->data_source) && !$_GET['data_source'] && !$_POST['data_source']) {
+        if (isset($this->data_source) && !gr('data_source')) {
             $out['SET_DATASOURCE'] = 1;
         }
         if ($this->data_source == 'charts_data') {
@@ -229,14 +230,16 @@ class charts extends module
         $out['ID'] = $id;
 
 
-        if (!$this->id && $id) {
+        if (!isset($this->id) && $id) {
             $this->id = $id;
-        } elseif ($this->id) {
+        } elseif (isset($this->id)) {
             $id = $this->id;
         }
 
-        if ($_GET['enable_fullscreen']) {
+        if (gr('enable_fullscreen')) {
             $this->enable_fullscreen = 1;
+        } else {
+            $this->enable_fullscreen = 0;
         }
         $out['ENABLE_FULLSCREEN'] = (int)$this->enable_fullscreen;
         $out['UNIQ_ID'] = 'chart_' . rand(0, 99999);
@@ -473,7 +476,7 @@ class charts extends module
 
         if ($this->id) {
 
-            if ($_GET['from_list']) {
+            if (gr('from_list')) {
                 $out['FROM_LIST'] = 1;
             }
 
@@ -534,16 +537,17 @@ class charts extends module
             }
 
 
-            if ($this->width) {
+            if (isset($this->width)) {
                 $chart['WIDTH'] = $this->width;
             } else {
                 $chart['WIDTH'] = '100%';
             }
 
-            if ($_GET['height']) {
-                $this->height = $_GET['height'];
+            if (gr('height')) {
+                $this->height = gr('height');
             }
-            if ($this->height) {
+
+            if (isset($this->height)) {
                 $chart['HEIGHT'] = $this->height;
             } else {
                 $chart['HEIGHT'] = '100%';
@@ -557,7 +561,7 @@ class charts extends module
                 $chart['HEIGHT'] .= 'px';
             }
 
-            if ($this->interval) {
+            if (isset($this->interval)) {
                 $chart['INTERVAL'] = (int)$this->interval;
                 if (!$chart['INTERVAL']) {
                     $chart['INTERVAL'] = 15 * 60;
@@ -612,7 +616,7 @@ class charts extends module
 
             outHash($chart, $out);
 
-            if ($out['MULTIPLE_CHARTS']) {
+            if (isset($out['MULTIPLE_CHARTS']) && $out['MULTIPLE_CHARTS']) {
                 $total = count($properties);
                 $charts=array();
                 for($i=0;$i<$total;$i++) {
