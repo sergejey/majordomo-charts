@@ -10,16 +10,21 @@
 [#endif#]
 
 [#if ID!=""#]
-<script src="<#ROOTHTML#>3rdparty/highcharts/highcharts.js"></script>
-<script src="<#ROOTHTML#>3rdparty/highcharts/highcharts-more.js"></script>
-<script src="<#ROOTHTML#>3rdparty/highcharts/modules/solid-gauge.js"></script>
+<script>
+ if (!document.getElementById('charts_js_load')) {
+  document.write('<span id="charts_js_load"></span>');
+  document.write('<script src="<#ROOTHTML#>3rdparty/highcharts/highcharts.js"><\/script>');
+  document.write('<script src="<#ROOTHTML#>3rdparty/highcharts/highcharts-more.js"><\/script>');
+  document.write('<script src="<#ROOTHTML#>3rdparty/highcharts/modules/solid-gauge.js"><\/script>');
 [#if THEME=""#]
 [#if "<#SETTINGS_THEME#>"=="dark"#]
-<script src="<#ROOTHTML#>3rdparty/highcharts/themes/dark-unica.js"></script>
+  document.write('<script src="<#ROOTHTML#>3rdparty/highcharts/themes/dark-unica.js"><\/script>');
 [#endif SETTINGS_THEME#]
 [#else THEME#]
-<script src="<#ROOTHTML#>3rdparty/highcharts/themes/[#THEME#].js"></script>
+  document.write('<script src="<#ROOTHTML#>3rdparty/highcharts/themes/[#THEME#].js"><\/script>');
 [#endif THEME#]
+ }
+</script>
 <style>
     .highcharts-background {
         fill: rgba(0, 0, 0, 0);
