@@ -10,9 +10,9 @@
 [#endif#]
 
 [#if ID!=""#]
-<script>
- if (!document.getElementById('charts_js_load')) {
-  document.write('<span id="charts_js_load"></span>');
+<script type="text/javascript">
+ if (!window.HighchartsIsLoaded) {
+  window.HighchartsIsLoaded = true;
   document.write('<script src="<#ROOTHTML#>3rdparty/highcharts/highcharts.js"><\/script>');
   document.write('<script src="<#ROOTHTML#>3rdparty/highcharts/highcharts-more.js"><\/script>');
   document.write('<script src="<#ROOTHTML#>3rdparty/highcharts/modules/solid-gauge.js"><\/script>');
