@@ -252,10 +252,14 @@ class charts extends module
                 $property = gr('prop_id');
             } elseif (gr('property')) {
                 $property = gr('property');
+            } else {
+                $property = '';
             }
-            $tmp = explode('.', $property);
-            $chart_data['LINKED_OBJECT'] = $tmp[0];
-            $chart_data['LINKED_PROPERTY'] = $tmp[1];
+            if ($property != '') {
+                $tmp = explode('.', $property);
+                $chart_data['LINKED_OBJECT'] = $tmp[0];
+                $chart_data['LINKED_PROPERTY'] = $tmp[1];
+            }
             list($chart['HISTORY_DEPTH'], $chart['HISTORY_TYPE']) = $this->getDepthByType($period);
         } elseif ($id) {
             $chart = SQLSelectOne("SELECT * FROM charts WHERE ID='" . (int)$id . "'");
@@ -376,7 +380,7 @@ class charts extends module
                                     $history[] = array($dt, $val);
                                 }
 
-                                if ($chart_data['TYPE'] == 'area_stack') {
+                                if (isset($chart_data['TYPE']) && $chart_data['TYPE'] == 'area_stack') {
                                     $pre_data = SQLSelect("SELECT ID, VALUE, UNIX_TIMESTAMP(ADDED) as UNX, ADDED FROM $history_table WHERE VALUE_ID='" . $pvalue['ID'] . "' AND ADDED>=('" . date('Y-m-d H:i:s', $start_time) . "') AND ADDED<=('" . date('Y-m-d H:i:s', $end_time) . "') ORDER BY ADDED");
                                     if ($history_type >= 1440) {
                                         //day average
@@ -498,12 +502,12 @@ class charts extends module
                 if (!is_array($properties)) {
                     $properties = array($property);
                 }
-                if (count($properties)>1) {
-                    $out['MULTIPLE_CHARTS']=1;
+                if (count($properties) > 1) {
+                    $out['MULTIPLE_CHARTS'] = 1;
                 }
                 $res_properties = array();
                 $legend = gr('legend');
-                $i=0;
+                $i = 0;
                 foreach ($properties as $property) {
                     $tmp = explode('.', $property);
                     $prop['ID'] = $property . '.' . $period;
@@ -585,12 +589,12 @@ class charts extends module
             }
 
             $prop_name = $properties[0]['LINKED_PROPERTY'];
-            $unit = $properties[0]['UNIT'];
+            $unit = isset($properties[0]['UNIT']) ? $properties[0]['UNIT'] : '';
             $chart['FIRST_UNIT'] = $unit;
 
             for ($i = 0; $i < $total; $i++) {
                 $properties[$i]['NUM'] = $i;
-                if (($properties[$i]['UNIT'] != $unit || $unit == '')) {
+                if (isset($properties[$i]['UNIT']) && ($properties[$i]['UNIT'] != $unit || $unit == '')) {
                     $prop_name = $properties[$i]['LINKED_PROPERTY'];
                     $unit = $properties[$i]['UNIT'];
                     $chart['MULTIPLE_AXIS'] = 1;
@@ -618,28 +622,28 @@ class charts extends module
 
             if (isset($out['MULTIPLE_CHARTS']) && $out['MULTIPLE_CHARTS']) {
                 $total = count($properties);
-                $charts=array();
-                for($i=0;$i<$total;$i++) {
+                $charts = array();
+                for ($i = 0; $i < $total; $i++) {
                     $new_chart = $chart;
-                    if ($new_chart['HEIGHT']=='100%') {
-                        $new_chart['HEIGHT']=(round(100/$total)-5).'%';
+                    if ($new_chart['HEIGHT'] == '100%') {
+                        $new_chart['HEIGHT'] = (round(100 / $total) - 5) . '%';
                     }
-                    $properties[$i]['NUM']=0;
-                    $properties[$i]['LAST']=1;
-                    $properties[$i]['OPPOSITE']=0;
-                    $new_chart['PROPERTIES']=array($properties[$i]);
+                    $properties[$i]['NUM'] = 0;
+                    $properties[$i]['LAST'] = 1;
+                    $properties[$i]['OPPOSITE'] = 0;
+                    $new_chart['PROPERTIES'] = array($properties[$i]);
                     $new_chart['UNIQ_ID'] = 'chart_' . rand(0, 99999);
                     //$new_chart['HEIGHT']='200px';
                     unset($new_chart['MULTIPLE_AXIS']);
-                    $charts[]=$new_chart;
+                    $charts[] = $new_chart;
                 }
             } else {
                 $chart['PROPERTIES'] = $properties;
                 $chart['UNIQ_ID'] = 'chart_' . rand(0, 99999);
-                $charts=array($chart);
+                $charts = array($chart);
             }
 
-            $out['CHARTS']=$charts;
+            $out['CHARTS'] = $charts;
 
         } else {
             $charts = SQLSelect("SELECT * FROM charts ORDER BY TITLE");
