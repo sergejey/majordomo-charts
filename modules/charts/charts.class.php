@@ -97,7 +97,6 @@ class charts extends module
      */
     function run()
     {
-        global $session;
         $out = array();
         if ($this->action == 'admin') {
             $this->admin($out);
@@ -304,7 +303,6 @@ class charts extends module
                 }
                 exit ('OK');
             }
-            /************************/
 
             $prop_id = gr('prop_id');
 
@@ -348,7 +346,6 @@ class charts extends module
                             $val = getGlobal($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY']);
                             $val = (float)preg_replace('/[^\d\.\-]/', '', $val);
                             $history[] = array((float)str_replace(',', '.', $val));
-                            // $history[]=array((float)$val);
                         } else {
 
                             if ($group != '') {
@@ -368,7 +365,6 @@ class charts extends module
                                         $value = getHistoryAvg($chart_data['LINKED_OBJECT'] . '.' . $chart_data['LINKED_PROPERTY'], $start_period_tm, $end_period_tm);
                                     }
                                     $history[] = round((float)str_replace(',', '.', $value), 2);
-                                    // $history[]=round((float)$value,2);
                                 }
                             } else {
 
@@ -406,8 +402,6 @@ class charts extends module
                                             if ($avg_count > 0) {
                                                 $avg = round(array_sum($avg_array) / count($avg_array), 2);
                                             }
-                                            //echo date('Y-m-d H:i:s',$current_time)." - ".date('H:i:s',$current_time+$range).": ";echo str_repeat(' ',5*1024);flush();flush();
-                                            //echo $avg."<br/> ";echo str_repeat(' ',5*1024);flush();flush();
                                             $data[] = array('UNX' => $current_time, 'VALUE' => $avg);
                                             $current_time += $range;
                                             $avg_array = array();
@@ -485,12 +479,6 @@ class charts extends module
             }
 
             if ($this->id == 'config') {
-                /*
-                $rec=array();
-                $rec['ID']='config';
-                list($rec['HISTORY_DEPTH'], $rec['HISTORY_TYPE']) = $this->getDepthByType($period);
-                */
-
                 $prop = array();
                 if ($_GET['chart_type'] != '') {
                     $prop['TYPE'] = $_GET['chart_type'];
@@ -523,12 +511,6 @@ class charts extends module
                 }
                 $properties = $res_properties;
             } else {
-                /*
-                $rec=SQLSelectOne("SELECT * FROM charts WHERE ID='".$this->id."'");
-                if (!$rec['ID']) {
-                 return;
-                }
-                */
                 $properties = SQLSelect("SELECT * FROM charts_data WHERE CHART_ID='" . $chart['ID'] . "' ORDER BY PRIORITY DESC, ID");
             }
 
@@ -704,7 +686,6 @@ class charts extends module
                 $start_tm += $period;
             }
         }
-        //dprint($periods);
         return $periods;
     }
 
@@ -842,7 +823,8 @@ class charts extends module
                     //'resources' => json_encode($resources),
                     'async' => false
                 );
-
+                curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+                curl_setopt($ch, CURLOPT_REFERER, 'https://www.google.com');
                 curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -964,14 +946,10 @@ class charts extends module
 
             $chart_hist = '{"RESULT":"OK","HISTORY":[';
             $sql = "SELECT  UNIX_TIMESTAMP(ADDED) dt, round(phistory.value,2) value FROM objects, pvalues,phistory where objects.ID=pvalues.OBJECT_ID and pvalues.PROPERTY_NAME='$obj' and phistory.VALUE_ID=pvalues.ID $days   order by added ";
-//echo $sql;
             $res = SQLSelect($sql);
-//print_r($res);
             $count = count($res);
-//echo $count;
             for ($i = 0; $i < $count; $i++) {
                 $chart_hist .= '[' . $res[$i]['dt'] . '000' . ',' . $res[$i]['value'] . '],';
-//echo '['.$res[$i]['dt'].','.$res[$i]['value'].'],<br>';
             }
             $chart_hist = substr($chart_hist, 0, -1) . ']}';
 
@@ -1014,6 +992,8 @@ class charts extends module
                 'async' => false
             );
 
+            curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+            curl_setopt($ch, CURLOPT_REFERER, 'https://www.google.com');
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
