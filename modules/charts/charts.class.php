@@ -823,7 +823,13 @@ class charts extends module
                     //'resources' => json_encode($resources),
                     'async' => false
                 );
-                curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+                if (isset($_SERVER['HTTP_USER_AGENT'])) {
+                    $useragent=$_SERVER['HTTP_USER_AGENT'];
+                } else {
+                    $useragents=array('Mozilla/5.0','Chrome/87.0.4280.88','Safari/537.36');
+                    $useragent=$useragents[rand(0,count($useragents)-1)];
+                }
+                curl_setopt($ch, CURLOPT_USERAGENT, $useragent);
                 curl_setopt($ch, CURLOPT_REFERER, 'https://www.google.com');
                 curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
