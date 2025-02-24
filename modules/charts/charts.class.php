@@ -1046,7 +1046,7 @@ class charts extends module
         //@include_once(ROOT.'languages/'.$this->name.'_'.SETTINGS_SITE_LANGUAGE.'.php');
         //@include_once(ROOT.'languages/'.$this->name.'_default'.'.php');
         parent::install();
-        SQLExec("UPDATE project_modules SET TITLE='" . LANG_GENERAL_GRAPHICS . "' WHERE NAME='" . $this->name . "'");
+        //SQLExec("UPDATE project_modules SET TITLE='" . LANG_GENERAL_GRAPHICS . "' WHERE NAME='" . $this->name . "'");
     }
 
     /**
