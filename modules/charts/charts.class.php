@@ -826,7 +826,7 @@ class charts extends module
                 if (isset($_SERVER['HTTP_USER_AGENT'])) {
                     $useragent=$_SERVER['HTTP_USER_AGENT'];
                 } else {
-                    $useragents=array('Mozilla/5.0','Chrome/87.0.4280.88','Safari/537.36');
+                    $useragents=array("Mozilla/5.0 (X11; Linux x86_64; rv:152.0) Gecko/20100101 Firefox/152.0","Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1","Mozilla/5.0 (iPhone; CPU iPhone OS 17_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1","Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36 (compatible; Google-Read-Aloud; +https://support.google.com/webmasters/answer/1061943)");
                     $useragent=$useragents[rand(0,count($useragents)-1)];
                 }
                 curl_setopt($ch, CURLOPT_USERAGENT, $useragent);
@@ -998,7 +998,13 @@ class charts extends module
                 'async' => false
             );
 
-            curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+                if (isset($_SERVER['HTTP_USER_AGENT'])) {
+                    $useragent=$_SERVER['HTTP_USER_AGENT'];
+                } else {
+                    $useragents=array("Mozilla/5.0 (X11; Linux x86_64; rv:152.0) Gecko/20100101 Firefox/152.0","Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1","Mozilla/5.0 (iPhone; CPU iPhone OS 17_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1");
+                    $useragent=$useragents[rand(0,count($useragents)-1)];
+                }
+            curl_setopt($ch, CURLOPT_USERAGENT, $useragent);
             curl_setopt($ch, CURLOPT_REFERER, 'https://www.google.com');
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
