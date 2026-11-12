@@ -561,8 +561,8 @@ class charts extends module
             }
 
             $total = count($properties);
-            $chart['FIRST_TYPE'] = $properties[0]['TYPE'];
-            $chart['FIRST_UNIT'] = $properties[0]['UNIT'];
+            $chart['FIRST_TYPE'] =isset($properties[0]['TYPE']) ? $properties[0]['TYPE'] : '';
+            $chart['FIRST_UNIT'] = isset($properties[0]['UNIT']) ? $properties[0]['UNIT'] : '';
             if ($chart['FIRST_TYPE'] == 'area_stack') {
                 $chart['FIRST_TYPE'] = 'area';
             }
@@ -594,7 +594,7 @@ class charts extends module
             }
             $properties[count($properties) - 1]['LAST'] = 1;
 
-            if ($total == 2 && $chart['MULTIPLE_AXIS']) {
+            if ($total == 2 && !empty($chart['MULTIPLE_AXIS'])) {
                 $properties[count($properties) - 1]['OPPOSITE'] = 1;
             }
             if (isset($out['GROUP'])) $chart['GROUP'] = $out['GROUP'];
